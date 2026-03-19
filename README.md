@@ -1,5 +1,48 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/create-next-app).
 
+# ResumeAI
+
+SaaS moderno para análise de currículos com IA.
+
+## Tech Stack
+- Next.js 14 (App Router)
+- TypeScript
+- TailwindCSS
+- Prisma ORM
+- PostgreSQL
+- OpenAI API
+
+## Estrutura de Pastas
+```
+src/
+  components/         # Componentes React reutilizáveis
+  lib/                # Instâncias e utilitários (ex: Prisma)
+  services/           # Serviços externos (ex: OpenAI)
+  api/                # Rotas API (Next.js App Router)
+  hooks/              # React hooks customizados
+  types/              # Tipos TypeScript globais
+  app/                # Páginas e rotas (Next.js)
+```
+
+## Principais Páginas
+- `/` Landing page
+- `/dashboard` Dashboard do usuário
+- `/upload` Upload de currículo
+- `/analysis` Resultado da análise
+
+## Componentes de Exemplo
+- Navbar
+- UploadCard
+- AnalysisResultCard
+
+## Banco de Dados (Prisma)
+- User: id, email, createdAt
+- Resume: id, userId, fileName, content, analysis, createdAt
+
+## Observações
+- Para rodar as migrações do Prisma 7, siga a documentação oficial para configuração da URL do banco.
+- O upload e análise de currículo já estão prontos para integração com OpenAI.
+
 ## Getting Started
 
 First, run the development server:
