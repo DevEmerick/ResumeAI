@@ -2,6 +2,8 @@
 import React, { useRef, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "@/contexts/I18nContext";
+import Modal from "./Modal";
+import AuthCard from "./AuthCard";
 
 interface UploadCardProps {
   onAnalyze: (file: File) => void;
@@ -9,12 +11,15 @@ interface UploadCardProps {
 }
 
 const UploadCard: React.FC<UploadCardProps> = ({ onAnalyze, loading }) => {
-    const [isDragActive, setIsDragActive] = useState(false);
-    const [fileName, setFileName] = useState("");
-    const [file, setFile] = useState<File | null>(null);
-    const [alert, setAlert] = useState<string>("");
-    const inputRef = useRef<HTMLInputElement>(null);
-    const { t } = useTranslation();
+  const [isDragActive, setIsDragActive] = useState(false);
+  const [fileName, setFileName] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const [alert, setAlert] = useState<string>("");
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authType, setAuthType] = useState<"login" | "register">("login");
+  const inputRef = useRef<HTMLInputElement>(null);
+  const { t } = useTranslation();
+  const { isLoggedIn } = useAuth();
 
     const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
       e.preventDefault();
@@ -112,12 +117,31 @@ const UploadCard: React.FC<UploadCardProps> = ({ onAnalyze, loading }) => {
       )}
       <button
         className="bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg px-4 py-2 transition shadow focus:outline-none focus:ring-2 focus:ring-blue-500"
-        onClick={() => file && onAnalyze(file)}
+        onClick={() => {
+          if (!file || loading) return;
+          if (!isLoggedIn) {
+            setAuthModalOpen(true);
+            setAuthType("login");
+            return;
+          }
+          onAnalyze(file);
+        }}
         disabled={!file || loading}
         aria-label="Enviar para análise"
       >
         {loading ? t("upload.analyzing", "Analisando...") : t("upload.analyzeBtn", "Analisar currículo")}
       </button>
+      <Modal open={authModalOpen} onClose={() => setAuthModalOpen(false)}>
+        <div className="flex flex-col gap-4 items-center">
+          <AuthCard type={authType} />
+          {authType === "login" && (
+            <button
+              className="mt-4 px-4 py-2 rounded-lg font-medium bg-slate-700 text-slate-300 hover:bg-blue-600 hover:text-white transition-colors"
+              onClick={() => setAuthType("register")}
+            >Criar Conta</button>
+          )}
+        </div>
+      </Modal>
     </div>
   );
 };
