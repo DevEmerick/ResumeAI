@@ -52,6 +52,7 @@ export async function GET(request: Request) {
       return new Response(JSON.stringify({ error: "Token inválido" }), { status: 401 });
     }
   } catch (error) {
-    return new Response(JSON.stringify({ error: `Erro interno: ${error instanceof Error ? error.message : String(error)}` }), { status: 500 });
+    console.error("[Auth Protected Error]", error);
+    return new Response(JSON.stringify({ error: "Erro interno no servidor." }), { status: 500 });
   }
 }

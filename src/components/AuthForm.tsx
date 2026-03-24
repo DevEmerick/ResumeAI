@@ -1,6 +1,6 @@
 "use client";
 import InputField from "./InputField";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { login, register } from "@/services/authService";
 import Link from "next/link";
 import { useTranslation } from "@/contexts/I18nContext";
@@ -19,6 +19,38 @@ export default function AuthForm({ type }: AuthFormProps) {
   const [success, setSuccess] = useState("");
   const [redirecting, setRedirecting] = useState(false);
   const [passwordWarnings, setPasswordWarnings] = useState<string[]>([]);
+
+  // Proteção contra brute-force no frontend (Lockout)
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [lockoutUntil, setLockoutUntil] = useState<number | null>(null);
+  const [lockoutRemaining, setLockoutRemaining] = useState<number>(0);
+
+  useEffect(() => {
+    const storedLockout = localStorage.getItem("auth_lockout");
+    if (storedLockout) {
+      const until = parseInt(storedLockout, 10);
+      if (until > Date.now()) setLockoutUntil(until);
+      else localStorage.removeItem("auth_lockout");
+    }
+  }, []);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (lockoutUntil && lockoutUntil > Date.now()) {
+      interval = setInterval(() => {
+        const remaining = Math.ceil((lockoutUntil - Date.now()) / 1000);
+        if (remaining <= 0) {
+          setLockoutUntil(null);
+          setFailedAttempts(0);
+          localStorage.removeItem("auth_lockout");
+          setLockoutRemaining(0);
+        } else {
+          setLockoutRemaining(remaining);
+        }
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [lockoutUntil]);
 
   function validatePassword(pw: string): string[] {
     const warnings = [];
@@ -39,6 +71,12 @@ export default function AuthForm({ type }: AuthFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    if (lockoutUntil && lockoutUntil > Date.now()) {
+      setError(t("auth.lockout", `Muitas tentativas falhas. Tente novamente em ${lockoutRemaining} segundos.`));
+      return;
+    }
+
     setLoading(true);
     const endpoint = type === "login" ? "/api/auth/login" : "/api/auth/register";
     const body = type === "register"
@@ -67,7 +105,20 @@ export default function AuthForm({ type }: AuthFormProps) {
         window.location.href = "/dashboard";
       }
     } catch (err: any) {
-      setError(err.message || t("auth.connectionError", "Erro de conexão. Tente novamente."));
+      if (type === "login") {
+        const newAttempts = failedAttempts + 1;
+        setFailedAttempts(newAttempts);
+        if (newAttempts >= 5) {
+          const until = Date.now() + 60 * 1000; // Bloqueio de 60 segundos
+          setLockoutUntil(until);
+          localStorage.setItem("auth_lockout", until.toString());
+          setError(t("auth.lockout", `Muitas tentativas falhas. Tente novamente em 60 segundos.`));
+        } else {
+          setError(err.message || t("auth.connectionError", "Erro de conexão. Tente novamente."));
+        }
+      } else {
+        setError(err.message || t("auth.connectionError", "Erro de conexão. Tente novamente."));
+      }
     } finally {
       setLoading(false);
     }
@@ -100,10 +151,10 @@ export default function AuthForm({ type }: AuthFormProps) {
       {error && <div className="bg-red-900/20 text-red-400 border border-red-900/50 p-3 rounded-lg text-sm mt-2 font-medium" role="alert" aria-live="assertive">{error}</div>}
       {success && <div className="bg-green-900/20 text-green-400 border border-green-900/50 p-3 rounded-lg text-sm mt-2 font-medium" role="status" aria-live="polite">{success}</div>}
       <button
-        className={`w-full py-3 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 relative ${loading || redirecting ? "opacity-60 cursor-not-allowed" : ""}`}
+        className={`w-full py-3 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 relative ${loading || redirecting || lockoutUntil ? "opacity-60 cursor-not-allowed" : ""}`}
         type="submit"
         aria-label={type === "login" ? "Entrar" : "Registrar"}
-        disabled={loading || redirecting}
+        disabled={loading || redirecting || !!lockoutUntil}
       >
         {(loading || redirecting) ? (
           <span className="flex items-center justify-center">

@@ -1,3 +1,56 @@
+
+# Como rodar este projeto localmente
+
+## 1. Pré-requisitos
+- Node.js 18+ e npm instalados
+- Docker (opcional, recomendado para banco de dados)
+
+## 2. Instale as dependências
+```bash
+npm install
+```
+
+## 3. Configure o banco de dados
+Você pode rodar o PostgreSQL localmente ou via Docker:
+
+**Com Docker:**
+```bash
+docker-compose up -d
+```
+O banco estará disponível em `localhost:5432` (usuário: `usuario`, senha: `senha`, banco: `nomedobanco`).
+
+**Ou configure sua própria instância PostgreSQL e ajuste a string de conexão.**
+
+## 4. Configure as variáveis de ambiente
+Crie um arquivo `.env.local` na raiz do projeto com base no `.env.example`:
+```bash
+cp .env.example .env.local
+```
+Preencha os valores, especialmente:
+- `DATABASE_URL` (ex: `postgresql://usuario:senha@localhost:5432/nomedobanco`)
+- `OPENAI_API_KEY` (opcional, para integração OpenAI)
+- `SECRET_KEY` ou `JWT_SECRET` (chave secreta para autenticação)
+
+## 5. Rode as migrações e gere o Prisma Client
+```bash
+npx prisma generate
+npx prisma db push
+```
+
+## 6. (Opcional) Crie um usuário de teste
+```bash
+npx ts-node scripts/addTestUser.ts
+```
+Usuário padrão: `testuser@ai.com` / senha: `TestPassword123!`
+
+## 7. Rode o projeto
+```bash
+npm run dev
+```
+Acesse [http://localhost:3000](http://localhost:3000)
+
+---
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/create-next-app).
 
 # ResumeAI

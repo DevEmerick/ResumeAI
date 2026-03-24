@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import jwt from "jsonwebtoken";
+import { verifyCSRF } from "@/lib/csrf";
 
 export async function DELETE(req: NextRequest) {
   try {
+    // Proteção Anti-CSRF
+    if (!verifyCSRF(req)) {
+      return NextResponse.json({ error: "Acesso negado: CSRF detectado (Origem inválida)." }, { status: 403 });
+    }
+
     const cookie = req.headers.get("cookie") || "";
     const tokenMatch = cookie.match(/token=([^;]+)/);
     if (!tokenMatch) {
@@ -26,7 +32,8 @@ export async function DELETE(req: NextRequest) {
     const response = NextResponse.json({ success: true });
     response.cookies.set("token", "", { maxAge: 0, path: "/" });
     return response;
-  } catch (e: any) {
-    return NextResponse.json({ error: e.message || "Erro inesperado ao excluir conta." }, { status: 500 });
+  } catch (error) {
+    console.error("[Account Deletion Error]", error);
+    return NextResponse.json({ error: "Erro interno ao processar a solicitação." }, { status: 500 });
   }
 }

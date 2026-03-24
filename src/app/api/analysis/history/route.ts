@@ -1,10 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import jwt from "jsonwebtoken";
+import { verifyCSRF } from "@/lib/csrf";
 
 export async function GET(req: NextRequest) {
   const userId = req.nextUrl.searchParams.get("userId");
   if (userId) {
+    // Proteção contra IDOR (Insecure Direct Object Reference) / Quebra de Controle de Acesso
+    const cookie = req.headers.get("cookie") || "";
+    const tokenMatch = cookie.match(/token=([^;]+)/);
+    if (!tokenMatch) {
+      return NextResponse.json({ error: "Acesso negado: Não autenticado." }, { status: 401 });
+    }
+    
+    try {
+      const payload = jwt.verify(tokenMatch[1], process.env.JWT_SECRET!) as { userId?: string, id?: string };
+      const authenticatedUserId = payload.userId || payload.id;
+      if (authenticatedUserId !== userId) {
+        return NextResponse.json({ error: "Acesso negado: Você não tem permissão para visualizar os dados de outro usuário." }, { status: 403 });
+      }
+    } catch {
+      return NextResponse.json({ error: "Token inválido ou expirado." }, { status: 401 });
+    }
+
     // Busca direta pelo Prisma para evitar loop infinito com o fetch do Frontend
     const history = await prisma.analysisHistory.findMany({
       where: { userId },
@@ -43,6 +61,11 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    // Proteção Anti-CSRF
+    if (!verifyCSRF(req)) {
+      return NextResponse.json({ error: "Acesso negado: CSRF detectado." }, { status: 403 });
+    }
+
     // Autenticação via cookie JWT
     const cookie = req.headers.get("cookie") || "";
     const tokenMatch = cookie.match(/token=([^;]+)/);
@@ -73,8 +96,9 @@ export async function POST(req: NextRequest) {
       },
     });
     return NextResponse.json({ success: true, record }, { status: 201 });
-  } catch (e: any) {
-    return NextResponse.json({ error: e.message || "Erro inesperado." }, { status: 500 });
+  } catch (error) {
+    console.error("[History POST Error]", error);
+    return NextResponse.json({ error: "Erro interno ao salvar o histórico." }, { status: 500 });
   }
 }
 
@@ -82,6 +106,11 @@ export async function POST(req: NextRequest) {
 // DELETE /api/analysis/history?id=ANALYSIS_ID
 export async function DELETE(req: NextRequest) {
   try {
+    // Proteção Anti-CSRF
+    if (!verifyCSRF(req)) {
+      return NextResponse.json({ error: "Acesso negado: CSRF detectado." }, { status: 403 });
+    }
+
     // Autenticação via cookie JWT
     const cookie = req.headers.get("cookie") || "";
     const tokenMatch = cookie.match(/token=([^;]+)/);
@@ -110,7 +139,8 @@ export async function DELETE(req: NextRequest) {
     }
     await prisma.analysisHistory.delete({ where: { id } });
     return NextResponse.json({ success: true });
-  } catch (e: any) {
-    return NextResponse.json({ error: e.message || "Erro inesperado." }, { status: 500 });
+  } catch (error) {
+    console.error("[History DELETE Error]", error);
+    return NextResponse.json({ error: "Erro interno ao processar a requisição." }, { status: 500 });
   }
 }

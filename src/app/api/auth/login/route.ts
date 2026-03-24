@@ -38,6 +38,7 @@ export async function POST(request: Request) {
       }
     );
   } catch (error) {
-    return new Response(JSON.stringify({ error: `Erro interno: ${error instanceof Error ? error.message : String(error)}` }), { status: 500 });
+    console.error("[Auth Login Error]", error);
+    return new Response(JSON.stringify({ error: "Erro interno no servidor." }), { status: 500 });
   }
 }
