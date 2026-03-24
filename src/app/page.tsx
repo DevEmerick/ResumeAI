@@ -15,8 +15,8 @@ export default function Home() {
         <h1 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight drop-shadow-sm">
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">ResumeAI</span>
           <span className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent mx-2">:</span>
-          Análise de Currículos com
-          <span className="ml-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">IA</span>
+          {t("home.title", "Análise de Currículos com")}
+          <span className="ml-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">{t("home.titleHighlight", "IA")}</span>
         </h1>
         <p className="text-lg md:text-xl text-slate-300 max-w-2xl leading-relaxed">
           {t("home.subtitle", "Receba feedback instantâneo e sugestões valiosas para aprimorar seu currículo e conquistar a vaga dos seus sonhos.")}
