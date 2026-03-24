@@ -99,23 +99,29 @@ export default function AnalysisHistorySection() {
           {deleteError && <div className="text-red-400 text-sm font-medium bg-red-900/30 px-3 py-1.5 rounded-lg border border-red-900/50" role="alert">{deleteError}</div>}
       </div>
       {history.length === 0 ? (
-          <div className="text-sm text-slate-400 bg-slate-800/50 p-6 rounded-xl border border-dashed border-slate-700 text-center">{t("history.empty", "Nenhuma análise encontrada no seu histórico.")}</div>
+        <div className="text-sm text-slate-400 bg-slate-800/50 p-6 rounded-xl border border-dashed border-slate-700 text-center">{t("history.empty", "Nenhuma análise encontrada no seu histórico.")}</div>
       ) : (
         <div className="flex flex-col gap-8">
-          {history.map((item) => {
-            let parsed = null;
-            try {
-              parsed = typeof item.analysis === "string" ? JSON.parse(item.analysis) : item.analysis;
-            } catch {
-              parsed = null;
-            }
-            return (
+          {[...history]
+            .map((item) => {
+              let parsed = null;
+              try {
+                parsed = typeof item.analysis === "string" ? JSON.parse(item.analysis) : item.analysis;
+              } catch {
+                parsed = null;
+              }
+              return { ...item, parsed, score: parsed && typeof parsed.score === "number" ? parsed.score : null };
+            })
+            .sort((a, b) => (b.score ?? -1) - (a.score ?? -1))
+            .map(item => {
+              // 'parsed' já está em item.parsed devido ao processamento anterior
+              return (
                 <div key={item.id} className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-slate-700 rounded-xl p-5 bg-slate-800/50 hover:bg-slate-800 transition-all duration-300 shadow-sm hover:shadow-md hover:scale-[1.015] hover:border-blue-500 group">
-                {/* Corpo clicável do card */}
-                <div
+                  {/* Corpo clicável do card */}
+                  <div
                   className="flex-1 w-full cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-lg pr-8 sm:pr-0"
                   onClick={() => {
-                    setSelectedAnalysis({ ...item, parsed });
+                    setSelectedAnalysis(item);
                     setModalOpen(true);
                   }}
                   role="button"
@@ -123,7 +129,7 @@ export default function AnalysisHistorySection() {
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
-                      setSelectedAnalysis({ ...item, parsed });
+                      setSelectedAnalysis(item);
                       setModalOpen(true);
                     }
                   }}
@@ -133,11 +139,11 @@ export default function AnalysisHistorySection() {
                       <div className="font-semibold text-slate-200 group-hover:text-blue-400 transition-colors duration-200">{item.fileName}</div>
                       <div className="text-sm text-slate-400">{new Date(item.createdAt).toLocaleString()}</div>
                   </div>
-                  {parsed && typeof parsed === "object" && parsed.score !== undefined ? (
-                      <div className="text-blue-400 font-bold text-xl">{t("dashboard.table.score", "Score")}: {parsed.score}/100</div>
-                  ) : (
+                    {item.parsed && typeof item.parsed === "object" && item.parsed.score !== undefined ? (
+                      <div className="text-blue-400 font-bold text-xl">{t("dashboard.table.score", "Score")}: {item.parsed.score}/100</div>
+                    ) : (
                       <div className="text-sm text-slate-400 mt-1 whitespace-pre-wrap break-words line-clamp-2">{item.analysis}</div>
-                  )}
+                    )}
                     <span className="mt-4 inline-flex items-center gap-1 text-blue-400 text-sm font-medium" aria-hidden="true">
                     {t("history.details", "Ver detalhes")}
                     <span className="transition-transform duration-300 group-hover:translate-x-1">&rarr;</span>
