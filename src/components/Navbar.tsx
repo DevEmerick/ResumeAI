@@ -1,14 +1,23 @@
 "use client";
 
 import { useState } from "react";
+import { useActivePath } from "@/lib/useActivePath";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "@/contexts/I18nContext";
 
 export default function Navbar() {
+
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user, isLoggedIn, logout } = useAuth();
   const { locale, setLocale, t } = useTranslation();
+
+  const navLinks = [
+    { href: "/how-it-works", label: t("nav.howItWorks", locale === 'pt' ? "Como funciona" : "How it works") },
+    { href: "/pricing", label: t("nav.pricing", locale === 'pt' ? "Planos" : "Pricing") },
+  ];
+  if (isLoggedIn) navLinks.push({ href: "/dashboard", label: t("nav.dashboard", locale === 'pt' ? "Dashboard" : "Dashboard") });
+  const activePath = useActivePath(navLinks.map(l => l.href));
 
   // Avatar simples (iniciais)
   const avatar = user ? (
@@ -25,22 +34,32 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-800 bg-slate-900/80 backdrop-blur supports-[backdrop-filter]:bg-slate-900/60 transition-colors duration-300 shadow-sm" aria-label="Barra de navegação principal">
-      <nav className="max-w-6xl mx-auto px-6 flex items-center justify-between h-16">
+      <nav className="max-w-6xl mx-auto px-6 flex items-center h-16">
         {/* Logo */}
-        <Link href="/" className="text-2xl font-bold tracking-tight text-blue-500 hover:text-blue-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">ResumeAI</Link>
-
-        {/* Links desktop */}
-        <div className="hidden md:flex gap-8">
-          <Link href="/features" className="text-sm font-semibold text-slate-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">{t("nav.features", "Features")}</Link>
-          <Link href="/how-it-works" className="text-sm font-semibold text-slate-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">{t("nav.howItWorks", "How it works")}</Link>
-          <Link href="/pricing" className="text-sm font-semibold text-slate-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">{t("nav.pricing", "Pricing")}</Link>
-          {isLoggedIn && (
-            <Link href="/dashboard" className="text-sm font-semibold text-blue-400 hover:text-blue-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">{t("nav.dashboard", "Dashboard")}</Link>
-          )}
+        <div className="flex-1 flex items-center">
+          <Link href="/" className="text-2xl font-bold tracking-tight text-blue-500 hover:text-blue-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">ResumeAI</Link>
         </div>
 
-        {/* Ações desktop */}
-        <div className="hidden md:flex items-center gap-2">
+        {/* Links desktop centralizados */}
+        <div className="hidden md:flex flex-1 justify-center gap-8">
+          {navLinks.map(link => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={
+                `text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ` +
+                (activePath === link.href
+                  ? "text-blue-400 hover:text-blue-300"
+                  : "text-slate-400 hover:text-white")
+              }
+            >
+              {link.label}
+            </Link>
+          ))}
+        </div>
+
+        {/* Ações desktop à direita */}
+        <div className="hidden md:flex flex-1 justify-end items-center gap-2">
           <button
             onClick={() => setLocale(locale === 'pt' ? 'en' : 'pt')}
             className="flex items-center justify-center mr-2 w-8 h-8 rounded-lg text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-800 transition-all border border-slate-700"
@@ -120,9 +139,21 @@ export default function Navbar() {
               >
                 {t("nav.language", "Idioma")}: <span className="font-bold">{locale === 'pt' ? 'Português' : 'English'}</span>
               </button>
-              <Link href="/features" className="block w-full text-center py-4 text-lg font-semibold text-slate-300 hover:text-white transition-colors focus-visible:outline-none" onClick={() => setMobileOpen(false)}>{t("nav.features", "Features")}</Link>
-              <Link href="/how-it-works" className="block w-full text-center py-4 text-lg font-semibold text-slate-300 hover:text-white transition-colors focus-visible:outline-none" onClick={() => setMobileOpen(false)}>{t("nav.howItWorks", "How it works")}</Link>
-              <Link href="/pricing" className="block w-full text-center py-4 text-lg font-semibold text-slate-300 hover:text-white transition-colors focus-visible:outline-none" onClick={() => setMobileOpen(false)}>{t("nav.pricing", "Pricing")}</Link>
+              {navLinks.map(link => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={
+                    `block w-full text-center py-4 text-lg font-semibold transition-colors focus-visible:outline-none ` +
+                    (activePath === link.href
+                      ? "text-blue-400 hover:text-blue-300"
+                      : "text-slate-300 hover:text-white")
+                  }
+                  onClick={() => setMobileOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              ))}
               {!isLoggedIn ? (
                 <>
                   <Link href="/login" className="block w-full text-center py-4 text-lg font-medium text-slate-300 hover:text-white transition-all duration-200 focus-visible:outline-none" onClick={() => setMobileOpen(false)}>{t("nav.login", "Conectar")}</Link>
