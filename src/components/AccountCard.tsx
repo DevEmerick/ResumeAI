@@ -1,6 +1,27 @@
 "use client";
 import { useState } from "react";
+const PLANS = [
+  {
+    type: "FREE",
+    name: "Free",
+    description: "Plano gratuito com recursos básicos.",
+    benefits: ["Análise limitada", "Suporte básico"],
+  },
+  {
+    type: "PRO",
+    name: "Pro",
+    description: "Para profissionais que querem mais.",
+    benefits: ["Análises ilimitadas", "Suporte prioritário", "Funcionalidades avançadas"],
+  },
+  {
+    type: "TEAM",
+    name: "Team",
+    description: "Para equipes e empresas.",
+    benefits: ["Tudo do Pro", "Gestão de equipe", "Relatórios compartilhados"],
+  },
+];
 import { useUser } from "@/hooks/useUser";
+import { useAuth } from "@/contexts/AuthContext";
 
 import Modal from "./Modal";
 import dynamic from "next/dynamic";
@@ -10,6 +31,7 @@ const SettingsForm = dynamic(() => import("./SettingsForm"), { ssr: false });
 
 export default function AccountCard() {
   const user = useUser();
+  const { setUser } = useAuth();
   const [editOpen, setEditOpen] = useState(false);
   // Fallback para garantir exibição mesmo se user estiver indefinido
   const displayName = user?.name || "Usuário";
@@ -55,6 +77,40 @@ export default function AccountCard() {
     </div>
   );
 
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+
+  async function handleChangePlan(type: string) {
+    if (!user || user.subscriptionType === type) return;
+    setLoading(true);
+    setMessage(null);
+    try {
+      const res = await fetch("/api/subscription", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subscriptionType: type }),
+      });
+      if (!res.ok) throw new Error("Erro ao mudar de plano");
+      // Buscar usuário atualizado
+      const userRes = await fetch("/api/auth/protected", { credentials: "include" });
+      if (userRes.ok) {
+        const data = await userRes.json();
+        if (data.user) setUser({
+          id: data.user.userId || data.user.id,
+          name: data.user.name,
+          email: data.user.email,
+          createdAt: data.user.createdAt || "",
+          subscriptionType: data.user.subscriptionType || "FREE"
+        });
+      }
+      setMessage("Plano alterado com sucesso!");
+    } catch (e) {
+      setMessage("Erro ao mudar de plano");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="bg-slate-800/50 rounded-2xl shadow-xl border border-slate-700 p-6 sm:p-8 max-w-md w-full mx-auto mt-8 sm:mt-16 flex flex-col items-center text-center">
       {avatar}
@@ -71,6 +127,32 @@ export default function AccountCard() {
           {user?.subscriptionType === "PRO" ? "Pro" : user?.subscriptionType === "TEAM" ? "Team" : "Free"}
         </span></div>
       </div>
+
+      <div className="w-full mt-6">
+        <h3 className="text-lg font-semibold text-white mb-2">Trocar de Plano</h3>
+        <div className="flex flex-col gap-4">
+          {PLANS.map((plan) => (
+            <div key={plan.type} className={`rounded-xl border p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 ${user?.subscriptionType === plan.type ? "border-blue-500 bg-blue-900/30" : "border-slate-700 bg-slate-900/50"}`}>
+              <div className="flex-1 text-left">
+                <div className="font-bold text-white">{plan.name}</div>
+                <div className="text-slate-400 text-sm mb-1">{plan.description}</div>
+                <ul className="text-xs text-slate-300 list-disc ml-5">
+                  {plan.benefits.map((b) => <li key={b}>{b}</li>)}
+                </ul>
+              </div>
+              <button
+                className={`px-4 py-2 rounded-lg font-medium transition focus:outline-none focus:ring-2 ${user?.subscriptionType === plan.type ? "bg-blue-600 text-white cursor-default" : "bg-slate-700 hover:bg-blue-600 text-blue-200"}`}
+                disabled={user?.subscriptionType === plan.type || loading}
+                onClick={() => handleChangePlan(plan.type)}
+              >
+                {user?.subscriptionType === plan.type ? "Plano Atual" : loading ? "Processando..." : `Selecionar`}
+              </button>
+            </div>
+          ))}
+        </div>
+        {message && <div className="mt-3 text-sm text-center text-green-400">{message}</div>}
+      </div>
+
       <Modal open={editOpen} onClose={() => setEditOpen(false)}>
         <SettingsForm
           initialName={user?.name}

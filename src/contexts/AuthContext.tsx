@@ -7,6 +7,7 @@ interface AuthContextProps {
   user: User | null;
   isLoggedIn: boolean;
   logout: () => void;
+  setUser: (user: User | null) => void;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -67,7 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, isLoggedIn, logout }}>
+    <AuthContext.Provider value={{ user, isLoggedIn, logout, setUser }}>
       {children}
     </AuthContext.Provider>
   );

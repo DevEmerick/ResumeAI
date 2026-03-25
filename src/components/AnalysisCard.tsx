@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useUser } from "@/hooks/useUser";
 import { useTranslation } from "@/contexts/I18nContext";
 
 interface AnalysisCardProps {
@@ -11,6 +12,7 @@ interface AnalysisCardProps {
 
 const AnalysisCard: React.FC<AnalysisCardProps> = ({ score, strengths, weaknesses, suggestions }) => {
   const { t, locale } = useTranslation();
+  const user = useUser();
   const [translating, setTranslating] = useState(false);
   const [translationError, setTranslationError] = useState("");
   const [translatedData, setTranslatedData] = useState<{
@@ -68,6 +70,8 @@ const AnalysisCard: React.FC<AnalysisCardProps> = ({ score, strengths, weaknesse
   const displayWeaknesses = translatedData?.weaknesses || weaknesses;
   const displaySuggestions = translatedData?.suggestions || suggestions;
 
+  const isPremium = user?.subscriptionType === "PRO" || user?.subscriptionType === "TEAM";
+
   return (
     <div
       className="w-full flex flex-col gap-4 text-slate-200"
@@ -121,11 +125,19 @@ const AnalysisCard: React.FC<AnalysisCardProps> = ({ score, strengths, weaknesse
       {/* Suggestions */}
       <div>
         <h3 className="text-lg font-semibold text-blue-400 mb-3 flex items-center gap-2">{t("result.suggestions", "Suggestions for Improvement")}</h3>
-        <ul className="space-y-2 text-slate-300">
-          {displaySuggestions.length > 0 ? displaySuggestions.map((item, idx) => (
-            <li key={idx} className="flex items-start gap-3 bg-blue-900/20 p-3 rounded-lg border border-blue-900/30 transition-colors hover:border-blue-800/50" tabIndex={0}><span className="text-blue-400 mt-0.5">•</span> <span>{item}</span></li>
-          )) : <li className="text-slate-500 italic">{t("result.noSuggestions", "No suggestions provided")}</li>}
-        </ul>
+        {isPremium ? (
+          <ul className="space-y-2 text-slate-300">
+            {displaySuggestions.length > 0 ? displaySuggestions.map((item, idx) => (
+              <li key={idx} className="flex items-start gap-3 bg-blue-900/20 p-3 rounded-lg border border-blue-900/30 transition-colors hover:border-blue-800/50" tabIndex={0}><span className="text-blue-400 mt-0.5">•</span> <span>{item}</span></li>
+            )) : <li className="text-slate-500 italic">{t("result.noSuggestions", "No suggestions provided")}</li>}
+          </ul>
+        ) : (
+          <div className="bg-blue-900/30 border border-blue-700 rounded-lg p-4 text-blue-300 text-center">
+            <div className="font-semibold mb-2">Recurso premium</div>
+            <div className="mb-2">Faça upgrade para <span className="text-blue-400 font-bold">Pro</span> ou <span className="text-blue-400 font-bold">Team</span> para ver sugestões detalhadas de melhoria.</div>
+            <a href="/account" className="inline-block mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition">Fazer upgrade</a>
+          </div>
+        )}
       </div>
     </div>
   );

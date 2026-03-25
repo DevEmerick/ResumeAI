@@ -13,7 +13,7 @@ export default function PricingPage() {
         t("pricing.p1.f1", "2 resume analyses per month"),
       ],
       ctaLabel: t("pricing.p1.cta", "Get Started"),
-      cta: "/upload",
+      cta: "/account",
       highlight: false,
     },
     {
@@ -25,7 +25,7 @@ export default function PricingPage() {
         t("pricing.p2.f3", "Keyword optimization"),
       ],
       ctaLabel: t("pricing.p2.cta", "Upgrade to Pro"),
-      cta: "/upload",
+      cta: "/account",
       highlight: true,
     },
     {
@@ -37,7 +37,7 @@ export default function PricingPage() {
         t("pricing.p3.f3", "Advanced analytics"),
       ],
       ctaLabel: t("pricing.p3.cta", "Contact Sales"),
-      cta: "/upload",
+      cta: "/account",
       highlight: false,
     },
   ];
