@@ -4,16 +4,17 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model AnalysisHistory {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
   userId    String
-  analysis  String
-  content   String
+  analysis  String?  // Resultado final da análise
+  content   String   // Texto extraído do currículo
   fileName  String
+  status    String   @default("pending") // pending, processing, done, error
+  error     String?  // Mensagem de erro, se houver
   user      User     @relation(fields: [userId], references: [id])
 }
 
@@ -25,6 +26,8 @@ model User {
   updatedAt        DateTime          @updatedAt
   name             String            @default("Usuário")
   subscriptionType SubscriptionType  @default(FREE)
+  tokens           Int               @default(3)
+  lastTokenRefill  DateTime?         // Para controle de renovação mensal do Pro
   analysisHistory  AnalysisHistory[]
   resumes          Resume[]
 }

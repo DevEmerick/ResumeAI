@@ -21,7 +21,7 @@ export async function GET(request: Request) {
       }
       // Buscar usuário atualizado no banco
       const userId = payload.userId || payload.id;
-      const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, email: true, name: true, createdAt: true, subscriptionType: true } });
+      const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, email: true, name: true, createdAt: true, subscriptionType: true, tokens: true } });
       if (!user) {
         return new Response(JSON.stringify({ error: "Usuário não encontrado" }), { status: 404 });
       }
@@ -33,7 +33,7 @@ export async function GET(request: Request) {
       if (payload.exp && payload.exp - now < 600) {
         const newToken = jwt.sign({ userId: user.id, email: user.email, name: user.name, createdAt: user.createdAt, subscriptionType: user.subscriptionType }, process.env.JWT_SECRET!, { expiresIn: "30m" });
         return new Response(
-          JSON.stringify({ success: true, user: { userId: user.id, email: user.email, name: user.name, createdAt: user.createdAt, subscriptionType: user.subscriptionType } }),
+          JSON.stringify({ success: true, user: { userId: user.id, email: user.email, name: user.name, createdAt: user.createdAt, subscriptionType: user.subscriptionType, tokens: user.tokens } }),
           {
             status: 200,
             headers: {
@@ -45,7 +45,7 @@ export async function GET(request: Request) {
       }
       // Retorna sempre os dados atualizados do banco
       return new Response(
-        JSON.stringify({ success: true, user: { userId: user.id, email: user.email, name: user.name, createdAt: user.createdAt, subscriptionType: user.subscriptionType } }),
+        JSON.stringify({ success: true, user: { userId: user.id, email: user.email, name: user.name, createdAt: user.createdAt, subscriptionType: user.subscriptionType, tokens: user.tokens } }),
         { status: 200 }
       );
     } catch (err) {

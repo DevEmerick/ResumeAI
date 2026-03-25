@@ -5,6 +5,7 @@ import { analyzeResume } from "@/services/ai/resumeAnalyzer";
 import { extractTextFromFile } from "@/lib/extractText";
 import jwt from "jsonwebtoken";
 import { prisma } from "@/lib/prisma";
+import { consumeToken } from "@/services/tokenService";
 import { rateLimit } from "@/lib/rateLimit";
 import { verifyCSRF } from "@/lib/csrf";
 
@@ -71,9 +72,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return;
   }
 
+
   // Exige que o usuário esteja logado e resgata o ID do perfil
   const userId = await requireAuth(req, res);
   if (!userId) return;
+
+  // Consome token antes de processar análise
+  const tokenOk = await consumeToken(userId);
+  if (!tokenOk) {
+    res.status(403).json({ error: "Você não possui tokens suficientes para realizar uma nova análise. Faça upgrade de plano ou recarregue seus tokens." });
+    return;
+  }
 
   // Limita a 3 requisições (uploads) por minuto por IP para prevenir ataques de DOS/Spam
   const ip = (req.headers["x-forwarded-for"] || req.socket.remoteAddress || "127.0.0.1") as string;

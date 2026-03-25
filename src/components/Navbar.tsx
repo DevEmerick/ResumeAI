@@ -1,4 +1,7 @@
+
 "use client";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCoins } from "@fortawesome/free-solid-svg-icons";
 
 import { useState } from "react";
 import { useActivePath } from "@/lib/useActivePath";
@@ -81,6 +84,8 @@ export default function Navbar() {
                 >
                   {avatar}
                   <span className="text-sm whitespace-nowrap">{t("nav.hello", "Olá")}, <span className="font-bold text-white">{user.name ? user.name.charAt(0).toUpperCase() + user.name.slice(1) : user.email}</span></span>
+                  {/* Removido badge azul, mantendo apenas o amarelo */}
+                             <span className="ml-3 px-2 py-1 rounded bg-slate-800/80 text-xs font-semibold text-yellow-200 border border-yellow-500 flex items-center gap-1 backdrop-blur-sm shadow-sm" title={t("nav.tokens", "Tokens disponíveis")}>{user.tokens ?? 0} <FontAwesomeIcon icon={faCoins} className="text-yellow-400 w-4 h-4" /></span>
                   <svg className="ml-1 w-4 h-4 text-blue-200 transition" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                 </button>
                 {dropdownOpen && (

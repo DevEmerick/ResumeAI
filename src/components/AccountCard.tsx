@@ -1,5 +1,13 @@
 "use client";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCoins } from "@fortawesome/free-solid-svg-icons";
+import { useTranslation } from "@/contexts/I18nContext";
 import { useState } from "react";
+import { useUser } from "@/hooks/useUser";
+import { useAuth } from "@/contexts/AuthContext";
+import Modal from "./Modal";
+import dynamic from "next/dynamic";
+
 const PLANS = [
   {
     type: "FREE",
@@ -20,16 +28,40 @@ const PLANS = [
     benefits: ["Tudo do Pro", "Gestão de equipe", "Relatórios compartilhados"],
   },
 ];
-import { useUser } from "@/hooks/useUser";
-import { useAuth } from "@/contexts/AuthContext";
 
-import Modal from "./Modal";
-import dynamic from "next/dynamic";
 
 // Lazy loading do formulário de configurações (só baixa o código ao abrir o modal)
 const SettingsForm = dynamic(() => import("./SettingsForm"), { ssr: false });
 
 export default function AccountCard() {
+    // Opções de compra de tokens (simulação)
+    // Novas opções: 5, 10 e 20 tokens, valores proporcionais (ex: R$3, R$5, R$9)
+    const tokenOptions = [
+      { amount: 5, price: 3 },
+      { amount: 10, price: 5 },
+      { amount: 20, price: 9 },
+    ];
+    // Função para comprar tokens e persistir no banco
+    async function handleBuyTokens(amount: number) {
+      if (!user) return;
+      setLoading(true);
+      setMessage(null);
+      try {
+        const res = await fetch("/api/tokens", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amount }),
+        });
+        if (!res.ok) throw new Error("Erro ao comprar tokens");
+        const data = await res.json();
+        setUser({ ...user, tokens: data.tokens });
+        setMessage("Tokens comprados com sucesso!");
+      } catch (e) {
+        setMessage("Erro ao comprar tokens");
+      } finally {
+        setLoading(false);
+      }
+    }
   const user = useUser();
   const { setUser } = useAuth();
   const [editOpen, setEditOpen] = useState(false);
@@ -100,7 +132,8 @@ export default function AccountCard() {
           name: data.user.name,
           email: data.user.email,
           createdAt: data.user.createdAt || "",
-          subscriptionType: data.user.subscriptionType || "FREE"
+          subscriptionType: data.user.subscriptionType || "FREE",
+          tokens: typeof data.user.tokens === "number" ? data.user.tokens : 0
         });
       }
       setMessage("Plano alterado com sucesso!");
@@ -126,6 +159,37 @@ export default function AccountCard() {
         <div><span className="font-medium text-slate-400">Plano Atual:</span> <span className="font-semibold text-blue-400 ml-1">
           {user?.subscriptionType === "PRO" ? "Pro" : user?.subscriptionType === "TEAM" ? "Team" : "Free"}
         </span></div>
+      </div>
+
+      {/* Saldo de tokens */}
+      <div className="flex justify-center mt-4">
+        <div className="flex flex-col items-center px-2 py-1 rounded bg-slate-800/80 border border-yellow-500 shadow-sm min-w-[80px]" title="Tokens disponíveis">
+          <div className="flex items-center gap-1">
+            <span className="text-base font-bold text-yellow-200">{user?.tokens ?? 0}</span>
+            <FontAwesomeIcon icon={faCoins} className="text-yellow-400 w-4 h-4" />
+          </div>
+          <span className="text-[10px] text-yellow-100 mt-0.5">Tokens disponíveis</span>
+        </div>
+      </div>
+
+      {/* Comprar mais tokens (simulação) */}
+      <div className="mt-4">
+        <span className="block text-slate-400 text-xs mb-1">Comprar mais tokens:</span>
+        <div className="flex flex-col items-center gap-2 mt-2">
+          {tokenOptions.map(opt => (
+            <button
+              key={opt.amount}
+              className="w-56 bg-slate-800 hover:bg-yellow-500 text-yellow-300 hover:text-slate-900 font-semibold rounded px-3 py-2 text-sm border border-yellow-600 hover:border-yellow-500 transition focus:outline-none focus:ring-2 focus:ring-yellow-500 text-center"
+              onClick={() => handleBuyTokens(opt.amount)}
+              type="button"
+              disabled={loading}
+            >
+              {opt.amount} tokens — R$ {opt.price},00
+            </button>
+          ))}
+        </div>
+        {message && <div className={`mt-2 text-xs ${message.includes("sucesso") ? "text-green-400" : "text-red-400"}`}>{message}</div>}
+        <span className="block text-slate-500 text-xs mt-1">(Simulação, sem cobrança real)</span>
       </div>
 
       <div className="w-full mt-6">

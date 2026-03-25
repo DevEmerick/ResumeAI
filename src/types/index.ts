@@ -6,6 +6,7 @@ export interface User {
   email: string;
   createdAt: string;
   subscriptionType: SubscriptionType;
+  tokens: number;
 }
 
 export interface Resume {

@@ -1,3 +1,5 @@
+import SkeletonLoader from "@/components/SkeletonLoader";
+import ProgressBar from "@/components/ProgressBar";
 "use client";
 import React, { useState, useEffect } from "react";
 import { CheckCircleIcon, ExclamationTriangleIcon, LightBulbIcon } from '@heroicons/react/24/outline';
@@ -22,17 +24,46 @@ function parseAnalysis(analysis: AnalysisType) {
   }
 }
 
+
 export default function AnalysisResultCard({ analysis, loading }: AnalysisResultCardProps) {
   const parsed = parseAnalysis(analysis);
   const { t, locale } = useTranslation();
   const [translating, setTranslating] = useState(false);
   const [translationError, setTranslationError] = useState("");
   const [translatedData, setTranslatedData] = useState<any>(null);
+  // Barra de progresso falsa
+  const [progress, setProgress] = useState(0);
+  const [showBar, setShowBar] = useState(false);
+
+  // Detecção de status da análise
+  const status = (parsed && typeof parsed === 'object' && parsed.result)
+    ? (parsed.result.includes("andamento") || parsed.result.includes("processing") ? "processing" : parsed.result.includes("Aguardando") || parsed.result.includes("pending") ? "pending" : "done")
+    : (!parsed ? "pending" : "done");
 
   useEffect(() => {
     setTranslatedData(null);
     setTranslationError("");
   }, [locale]);
+
+  // Progresso falso sincronizado com status
+  useEffect(() => {
+    if ((loading || status === "pending" || status === "processing") && progress < 90) {
+      setShowBar(true);
+      const interval = setInterval(() => {
+        setProgress((old) => {
+          if (old < 90) return old + Math.random() * 5 + 1;
+          return 90;
+        });
+      }, 500);
+      return () => clearInterval(interval);
+    } else if (status === "done") {
+      setProgress(100);
+      setTimeout(() => setShowBar(false), 2500);
+    } else if (!loading) {
+      setShowBar(false);
+      setProgress(0);
+    }
+  }, [loading, status]);
 
   const handleTranslate = async () => {
     if (translatedData || !parsed) return;
@@ -81,6 +112,8 @@ export default function AnalysisResultCard({ analysis, loading }: AnalysisResult
       aria-label="Resultado detalhado da análise do currículo"
       tabIndex={0}
     >
+      {/* Barra de progresso falsa dinâmica */}
+      {showBar && <ProgressBar progress={progress} indeterminate={false} finished={progress >= 100} />}
       {/* Botão de Tradução Frontend */}
       {!loading && displayData && !translatedData && (
         <div className="flex justify-end mb-2">
@@ -116,7 +149,7 @@ export default function AnalysisResultCard({ analysis, loading }: AnalysisResult
             <ul className="space-y-2 ml-8 text-slate-300">
               {displayData.strengths && displayData.strengths.length > 0 ? displayData.strengths.map((item: string, idx: number) => (
                 <li key={idx} className="flex items-start gap-2 bg-green-900/20 p-3 rounded-lg border border-green-900/30" tabIndex={0}><span className="text-green-400 mt-0.5">•</span> <span>{item}</span></li>
-              )) : <li className="text-slate-500 italic">{t("result.noStrengths", "No strengths found")}</li>}
+              )) : loading || showBar ? <li><SkeletonLoader /></li> : <li className="text-slate-500 italic">{t("result.noStrengths", "No strengths found")}</li>}
             </ul>
           </div>
           {/* Weaknesses */}
@@ -128,7 +161,7 @@ export default function AnalysisResultCard({ analysis, loading }: AnalysisResult
             <ul className="space-y-2 ml-8 text-slate-300">
               {displayData.weaknesses && displayData.weaknesses.length > 0 ? displayData.weaknesses.map((item: string, idx: number) => (
                 <li key={idx} className="flex items-start gap-2 bg-red-900/20 p-3 rounded-lg border border-red-900/30" tabIndex={0}><span className="text-red-400 mt-0.5">•</span> <span>{item}</span></li>
-              )) : <li className="text-slate-500 italic">{t("result.noWeaknesses", "No weaknesses found")}</li>}
+              )) : loading || showBar ? <li><SkeletonLoader /></li> : <li className="text-slate-500 italic">{t("result.noWeaknesses", "No weaknesses found")}</li>}
             </ul>
           </div>
           {/* Suggestions */}
@@ -140,7 +173,7 @@ export default function AnalysisResultCard({ analysis, loading }: AnalysisResult
             <ul className="space-y-2 ml-8 text-slate-300">
               {displayData.suggestions && displayData.suggestions.length > 0 ? displayData.suggestions.map((item: string, idx: number) => (
                 <li key={idx} className="flex items-start gap-2 bg-blue-900/20 p-3 rounded-lg border border-blue-900/30" tabIndex={0}><span className="text-blue-400 mt-0.5">•</span> <span>{item}</span></li>
-              )) : <li className="text-slate-500 italic">{t("result.noSuggestions", "No suggestions provided")}</li>}
+              )) : loading || showBar ? <li><SkeletonLoader /></li> : <li className="text-slate-500 italic">{t("result.noSuggestions", "No suggestions provided")}</li>}
             </ul>
           </div>
         </>

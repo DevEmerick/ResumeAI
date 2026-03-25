@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import UploadCard from "@/components/UploadCard";
 import { useAnalysis } from "@/contexts/AnalysisContext";
 import { analyzeResume } from "@/services/resumeService";
+import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "@/contexts/I18nContext";
 import dynamic from "next/dynamic";
 
@@ -14,13 +15,30 @@ export default function UploadPage() {
   const { analysis, setAnalysis, loading, setLoading } = useAnalysis();
   const { t, locale } = useTranslation();
 
+  const { setUser } = useAuth();
   const handleAnalyze = async (file: File) => {
     setLoading(true);
     setAnalysis("");
-    
     try {
-      const analysisObj = await analyzeResume(file, locale);
+      const analysisObj = await analyzeResume(file, locale, (status) => {
+        setAnalysis({ result: status === "processing" ? t("upload.processing", "Análise em andamento...") : t("upload.pending", "Aguardando processamento...") });
+      });
       setAnalysis(analysisObj);
+      // Refetch do usuário para atualizar tokens
+      try {
+        const res = await fetch("/api/auth/protected", { credentials: "include" });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.user) setUser({
+            id: data.user.userId || data.user.id,
+            name: data.user.name,
+            email: data.user.email,
+            createdAt: data.user.createdAt || "",
+            subscriptionType: data.user.subscriptionType || "FREE",
+            tokens: typeof data.user.tokens === "number" ? data.user.tokens : 0
+          });
+        }
+      } catch {}
     } catch (error) {
       console.error(error);
       setAnalysis({ result: t("upload.errorAnalyzing", "Error analyzing resume") });
