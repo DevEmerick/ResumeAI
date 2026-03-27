@@ -42,13 +42,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse,
       res.status(401).json({ error: "Não autenticado" });
       return;
     }
-    // Consome token já no início
-    const tokenOk = await consumeToken(userId);
-    if (!tokenOk) {
-      console.error("Usuário sem tokens suficientes");
-      res.status(403).json({ error: "Você não possui tokens suficientes." });
-      return;
-    }
+    // Não consome token aqui! Só verifica se está autenticado.
     // Parse do arquivo
     // Compatível com ESM (formidable 3.x) e Next.js 16+
     const form = new IncomingForm();
@@ -98,6 +92,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse,
               data: { status: "processing" as any },
             } as any);
             const result = await analyzeResume(text);
+            // Só consome token se a análise for bem-sucedida
+            const tokenOk = await consumeToken(userId);
+            if (!tokenOk) {
+              await prisma.analysisHistory.update({
+                where: { id: analysis.id },
+                data: { status: "error" as any, error: "Você não possui tokens suficientes." },
+              } as any);
+              return;
+            }
             await prisma.analysisHistory.update({
               where: { id: analysis.id },
               data: { status: "done" as any, analysis: typeof result === "string" ? result : JSON.stringify(result) },
