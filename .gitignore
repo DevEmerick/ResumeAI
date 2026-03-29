@@ -45,3 +45,5 @@ server-*.log
 next-env.d.ts
 
 /src/generated/prisma
+# Ignore o arquivo de tarefas local
+docs/todo.md
