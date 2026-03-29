@@ -90,17 +90,17 @@ export default function AccountCard() {
   }
   const memberSince = user?.createdAt ? formatMemberSince(user.createdAt) : "01-Janeiro-2024";
 
-  // Avatar grande (inicial ou imagem futura)
+  // Avatar grande (apenas inicial do nome)
   const avatar = (
     <div className="relative mx-auto mb-4">
       <div className="w-28 h-28 rounded-full bg-blue-600 flex items-center justify-center text-white text-5xl font-bold border-4 border-white shadow-lg">
         {displayName.charAt(0).toUpperCase()}
       </div>
+      {/* Botão de editar perfil permanece, mas sem referência a foto */}
       <button
         className="absolute bottom-0 right-0 bg-red-500 hover:bg-red-400 text-white rounded-full p-2 shadow-lg border-2 border-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-        aria-label="Alterar foto do perfil"
-        // Aqui só visual, não implementa upload real
-        onClick={() => alert('Funcionalidade de upload em breve!')}
+        aria-label="Editar perfil"
+        onClick={() => setEditOpen(true)}
       >
         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536M9 13h3l7-7a2 2 0 00-2.828-2.828l-7 7v3zm0 0v3h3" />

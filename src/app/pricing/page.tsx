@@ -7,12 +7,12 @@ export default function PricingPage() {
   const { t } = useTranslation();
   const plans = [
     {
-      name: t("pricing.p1.name", "Free"),
-      price: t("pricing.p1.price", "$0/mo"),
+      name: t("pricing.p1.name", "Grátis"),
+      price: "",
       features: [
-        t("pricing.p1.f1", "2 resume analyses per month"),
+        t("pricing.p1.f1", "Primeira análise grátis"),
       ],
-      ctaLabel: t("pricing.p1.cta", "Get Started"),
+      ctaLabel: t("pricing.p1.cta", "Começar grátis"),
       cta: "/account",
       highlight: false,
     },

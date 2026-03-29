@@ -26,7 +26,7 @@ model User {
   updatedAt        DateTime          @updatedAt
   name             String            @default("Usuário")
   subscriptionType SubscriptionType  @default(FREE)
-  tokens           Int               @default(3)
+  tokens           Int               @default(1)
   lastTokenRefill  DateTime?         // Para controle de renovação mensal do Pro
   analysisHistory  AnalysisHistory[]
   resumes          Resume[]

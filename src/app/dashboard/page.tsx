@@ -67,24 +67,49 @@ import { useTranslation } from "@/contexts/I18nContext";
       );
     }
 
+
 function Dashboard() {
   const { user } = useAuth();
-  const [history, setHistory] = useState<(AnalysisHistory & { user?: any })[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [userHistory, setUserHistory] = useState<any[]>([]);
+  const [globalHistory, setGlobalHistory] = useState<any[]>([]);
+  const [loadingUser, setLoadingUser] = useState(true);
+  const [loadingGlobal, setLoadingGlobal] = useState(true);
   const { t } = useTranslation();
   const isFree = user?.subscriptionType === "FREE";
 
+  // Busca histórico do usuário
   useEffect(() => {
-    setLoading(true);
-    fetch(`/api/analysis/history`)
-      .then(res => res.json())
-      .then(data => {
-        setHistory(Array.isArray(data) ? data : []);
-      })
-      .catch(err => {
+    async function fetchUserHistory() {
+      if (!user?.id) return;
+      setLoadingUser(true);
+      try {
+        const res = await fetch(`/api/analysis/history?userId=${user.id}`);
+        const data = await res.json();
+        setUserHistory(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error("[Dashboard] Erro ao buscar histórico do usuário:", err);
+      } finally {
+        setLoadingUser(false);
+      }
+    }
+    fetchUserHistory();
+  }, [user]);
+
+  // Busca histórico global
+  useEffect(() => {
+    async function fetchGlobalHistory() {
+      setLoadingGlobal(true);
+      try {
+        const res = await fetch(`/api/analysis/history`);
+        const data = await res.json();
+        setGlobalHistory(Array.isArray(data) ? data : []);
+      } catch (err) {
         console.error("[Dashboard] Erro ao buscar histórico global:", err);
-      })
-      .finally(() => setLoading(false));
+      } finally {
+        setLoadingGlobal(false);
+      }
+    }
+    fetchGlobalHistory();
   }, []);
 
   return (
@@ -106,19 +131,33 @@ function Dashboard() {
               <h1 className="text-3xl font-semibold text-white">{t("dashboard.title", "Dashboard")}</h1>
               <p className="text-slate-400 text-sm">{t("dashboard.subtitle", "Aqui você acompanha suas análises recentes e estatísticas gerais.")}</p>
             </div>
-            <AnalysisHistorySection />
+            {/* Card do histórico com botão no topo direito */}
+            <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-xl transition-colors duration-300 text-slate-200 mb-2 relative flex flex-col gap-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <h3 className="text-2xl font-semibold text-white">{t("history.title", "Últimas análises")}</h3>
+                <a
+                  href="/upload"
+                  className="bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg px-6 py-3 transition shadow focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  {userHistory.length > 0
+                    ? t("dashboard.newAnalysis", "Nova Análise")
+                    : t("dashboard.firstAnalysis", "Fazer Análise")}
+                </a>
+              </div>
+              <AnalysisHistorySection history={userHistory} setHistory={setUserHistory} hideTitle={true} />
+            </div>
             <div className="rounded-2xl border border-slate-700 bg-slate-800/50 p-6 shadow-xl flex flex-col gap-6">
               <h2 className="text-xl font-semibold text-white">{t("dashboard.leaderboard", "Leaderboard Global")}</h2>
-              {loading ? (
+              {loadingGlobal ? (
                 <div className="text-center py-8">
                   <span className="text-slate-400">{t("dashboard.loading", "Carregando...")}</span>
                 </div>
-              ) : history.length === 0 ? (
+              ) : globalHistory.length === 0 ? (
                 <div className="text-center py-8">
                   <p className="text-slate-500 text-sm max-w-sm">{t("dashboard.noAnalysisDesc", "Parece que ainda não existem currículos processados no histórico global.")}</p>
                 </div>
               ) : (
-                <RankingTable history={history} user={user} />
+                <RankingTable history={globalHistory} user={user} />
               )}
             </div>
           </div>

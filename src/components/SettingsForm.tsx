@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { updateProfile, deleteAccount } from "@/services/authService";
 
 import { useUser } from "@/hooks/useUser";
@@ -20,9 +20,12 @@ export default function SettingsForm({ initialName, initialEmail, onSuccess }: S
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [loading, setLoading] = useState(false);
+	// ...existing code...
 	const [success, setSuccess] = useState("");
 	const [error, setError] = useState("");
 	const [deleteLoading, setDeleteLoading] = useState(false);
+
+	// ...existing code...
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -49,6 +52,7 @@ export default function SettingsForm({ initialName, initialEmail, onSuccess }: S
 			updateData.password = password;
 		}
 
+		// Permite atualizar apenas o avatar
 		if (Object.keys(updateData).length === 0) {
 			setError(t("settings.fillFields", "Preencha nome ou email para atualizar."));
 			setLoading(false);
@@ -56,6 +60,7 @@ export default function SettingsForm({ initialName, initialEmail, onSuccess }: S
 		}
 
 		try {
+			// ...existing code...
 			await updateProfile(updateData);
 			setSuccess(t("settings.success", "Dados atualizados com sucesso!"));
 			if (onSuccess) onSuccess({ name: updateData.name ?? "", email: updateData.email ?? "" });
@@ -82,6 +87,7 @@ export default function SettingsForm({ initialName, initialEmail, onSuccess }: S
 	return (
 	<form onSubmit={handleSubmit} className="w-full max-w-md mx-auto flex flex-col gap-5 sm:gap-6" aria-label="Editar perfil do usuário">
 		<h3 className="text-2xl font-semibold text-white mb-2">Editar Perfil</h3>
+		{/* Avatar removido */}
 		<div className="flex flex-col gap-2">
 			<label htmlFor="name" className="text-sm font-medium text-slate-300">Nome</label>
 			<input

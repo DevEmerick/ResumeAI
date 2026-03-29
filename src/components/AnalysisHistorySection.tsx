@@ -46,58 +46,50 @@ function RawAnalysisTranslator({ text }: { text: string }) {
   );
 }
 
-export default function AnalysisHistorySection() {
-  const user = useUser();
-  const [history, setHistory] = useState<any[]>([]);
+export default function AnalysisHistorySection({ history, setHistory, hideTitle = false }: { history: any[], setHistory: (h: any[]) => void, hideTitle?: boolean }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedAnalysis, setSelectedAnalysis] = useState<any | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState("");
   const { t } = useTranslation();
 
-  useEffect(() => {
-    async function fetchHistory() {
-      if (!user?.id) return;
-      try {
-        const data = await getUserAnalysisHistory(user.id);
-        setHistory(data);
-      } catch (err) {
-        console.error("Failed to load history", err);
-      }
-    }
-    fetchHistory();
-  }, [user]);
-
   // Função para deletar análise
-  async function handleDeleteAnalysis(id: string) {
-    setDeletingId(id);
-    setDeleteError("");
-    try {
-      await deleteAnalysisHistory(id);
-      // Remove da lista local
-      setHistory((prev) => prev.filter((a) => a.id !== id));
-      if (selectedAnalysis?.id === id) {
-        setModalOpen(false);
+    async function handleDeleteAnalysis(id: string) {
+      setDeletingId(id);
+      setDeleteError("");
+      try {
+        await deleteAnalysisHistory(id);
+        // Remove da lista local
+        setHistory(history.filter((a) => a.id !== id));
+        if (selectedAnalysis?.id === id) {
+          setModalOpen(false);
+        }
+      } catch (err: any) {
+        setDeleteError(t("history.deleteError", "Erro ao deletar análise. Tente novamente."));
+      } finally {
+        setDeletingId(null);
       }
-    } catch (e: any) {
-      setDeleteError(e.message || t("history.deleteError", "Erro de conexão. Tente novamente."));
-    } finally {
-      setDeletingId(null);
-    }
   }
 
-  if (!user) return null;
+  if (!history) return null;
 
   return (
     <div
-        className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-xl transition-colors duration-300 text-slate-200"
+      className="w-full"
       aria-label="Histórico de análises do usuário"
       tabIndex={0}
     >
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+      {!hideTitle && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <h3 className="text-2xl font-semibold text-white">{t("history.title", "Últimas análises")}</h3>
           {deleteError && <div className="text-red-400 text-sm font-medium bg-red-900/30 px-3 py-1.5 rounded-lg border border-red-900/50" role="alert">{deleteError}</div>}
-      </div>
+        </div>
+      )}
+      {hideTitle && deleteError && (
+        <div className="mb-4">
+          <div className="text-red-400 text-sm font-medium bg-red-900/30 px-3 py-1.5 rounded-lg border border-red-900/50" role="alert">{deleteError}</div>
+        </div>
+      )}
       {history.length === 0 ? (
         <div className="text-sm text-slate-400 bg-slate-800/50 p-6 rounded-xl border border-dashed border-slate-700 text-center">{t("history.empty", "Nenhuma análise encontrada no seu histórico.")}</div>
       ) : (
