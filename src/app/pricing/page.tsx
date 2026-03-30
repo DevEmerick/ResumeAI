@@ -18,7 +18,7 @@ export default function PricingPage() {
     },
     {
       name: t("pricing.p2.name", "Pro"),
-      price: t("pricing.p2.price", "$19/mo"),
+      price: t("pricing.p2.price", "R$19,90"),
       features: [
         t("pricing.p2.f1", "Unlimited analysis"),
         t("pricing.p2.f2", "Resume rewriting"),

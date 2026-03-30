@@ -1,3 +1,8 @@
+// --- PRICING CARD PRO v1 (referência visual) ---
+// Preço: R$29/mês, valor e barra juntos, "mês" na mesma linha
+// Features: Análises ilimitadas, Reescrita de currículo, Otimização de palavras-chave
+// Botão: Assinar Pro
+// Classe: text-4xl font-extrabold mb-4 text-white
 "use client";
 import React from "react";
 import { useRouter } from "next/navigation";
@@ -20,7 +25,15 @@ const PricingCard: React.FC<PricingCardProps> = ({ name, price, features, highli
       aria-label={name}
     >
       <h3 className={`text-3xl font-semibold mb-2 ${highlight ? "text-blue-400" : "text-white"}`}>{name}</h3>
-      <div className="text-4xl font-extrabold mb-4 text-white">{price}</div>
+      {/* Preço Pro v2: valor em cima, 'mês' embaixo, sem barra, só para highlight */}
+      {highlight ? (
+        <div className="flex flex-col items-center mb-4">
+          <span className="text-4xl font-extrabold text-white">{price}</span>
+          <span className="text-base text-slate-300 mt-2">mês</span>
+        </div>
+      ) : (
+        <div className="text-4xl font-extrabold mb-4 text-white">{price}</div>
+      )}
       <ul className="flex-1 mb-6 space-y-2 text-base text-slate-400">
         {features.map((f) => (
           <li key={f} className="flex items-center gap-2">
