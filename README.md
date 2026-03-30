@@ -33,6 +33,9 @@ JWT_SECRET="umsegredoseguroparaautenticacao"
 Troque `<seu_usuario>` pelo seu usuário do sistema (ex: emerick).
 
 ## 5. Rode as migrações e gere o Prisma Client
+
+> **Important:** This project requires Prisma version 6.x. Other versions are not supported.
+
 ```bash
 npx prisma generate
 npx prisma db push
@@ -62,7 +65,7 @@ SaaS moderno para análise de currículos com IA.
 - Next.js 14 (App Router)
 - TypeScript
 - TailwindCSS
-- Prisma ORM
+- Prisma ORM (v6 only)
 - PostgreSQL
 - OpenAI API
 
