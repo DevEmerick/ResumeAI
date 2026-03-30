@@ -7,6 +7,7 @@ export interface User {
   createdAt: string;
   subscriptionType: SubscriptionType;
   tokens: number;
+  resumeRewriteCredits: number;
 }
 
 export interface Resume {

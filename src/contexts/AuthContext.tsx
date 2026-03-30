@@ -45,7 +45,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           email: userData.email,
           createdAt: userData.createdAt || "",
           subscriptionType: userData.subscriptionType || "FREE",
-          tokens: typeof userData.tokens === "number" ? userData.tokens : 0
+          tokens: typeof userData.tokens === "number" ? userData.tokens : 0,
+          resumeRewriteCredits: typeof userData.resumeRewriteCredits === "number" ? userData.resumeRewriteCredits : 0
         });
         setIsLoggedIn(true);
       } catch {

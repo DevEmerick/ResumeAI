@@ -35,7 +35,8 @@ export default function UploadPage() {
             email: data.user.email,
             createdAt: data.user.createdAt || "",
             subscriptionType: data.user.subscriptionType || "FREE",
-            tokens: typeof data.user.tokens === "number" ? data.user.tokens : 0
+            tokens: typeof data.user.tokens === "number" ? data.user.tokens : 0,
+            resumeRewriteCredits: typeof data.user.resumeRewriteCredits === "number" ? data.user.resumeRewriteCredits : 0
           });
         }
       } catch {}

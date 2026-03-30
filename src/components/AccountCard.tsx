@@ -133,7 +133,8 @@ export default function AccountCard() {
           email: data.user.email,
           createdAt: data.user.createdAt || "",
           subscriptionType: data.user.subscriptionType || "FREE",
-          tokens: typeof data.user.tokens === "number" ? data.user.tokens : 0
+          tokens: typeof data.user.tokens === "number" ? data.user.tokens : 0,
+          resumeRewriteCredits: typeof data.user.resumeRewriteCredits === "number" ? data.user.resumeRewriteCredits : 0
         });
       }
       setMessage("Plano alterado com sucesso!");
@@ -161,14 +162,24 @@ export default function AccountCard() {
         </span></div>
       </div>
 
-      {/* Saldo de tokens */}
-      <div className="flex justify-center mt-4">
+
+      {/* Saldo de tokens e créditos de reescrita */}
+      <div className="flex justify-center mt-4 gap-4">
+        {/* Tokens */}
         <div className="flex flex-col items-center px-2 py-1 rounded bg-slate-800/80 border border-yellow-500 shadow-sm min-w-[80px]" title="Tokens disponíveis">
           <div className="flex items-center gap-1">
             <span className="text-base font-bold text-yellow-200">{user?.tokens ?? 0}</span>
             <FontAwesomeIcon icon={faCoins} className="text-yellow-400 w-4 h-4" />
           </div>
           <span className="text-[10px] text-yellow-100 mt-0.5">Tokens disponíveis</span>
+        </div>
+        {/* Créditos de reescrita */}
+        <div className="flex flex-col items-center px-2 py-1 rounded bg-slate-800/80 border border-blue-500 shadow-sm min-w-[80px]" title="Créditos de reescrita">
+          <div className="flex items-center gap-1">
+            <span className="text-base font-bold text-blue-200">{user?.resumeRewriteCredits ?? 0}</span>
+            <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 3.487a9.001 9.001 0 11-9.849 14.26M9 17v4H5m0 0v-4m0 4h4" /></svg>
+          </div>
+          <span className="text-[10px] text-blue-100 mt-0.5">Créditos de reescrita</span>
         </div>
       </div>
 

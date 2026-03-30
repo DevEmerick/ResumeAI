@@ -2,8 +2,14 @@ import { prisma } from '@/lib/prisma';
 import type { User } from '@prisma/client';
 
 export async function createUser(data: { name: string; email: string; passwordHash: string }): Promise<User> {
-  // O Prisma já retorna todos os campos obrigatórios, inclusive passwordHash e updatedAt
-  return await prisma.user.create({ data });
+  // Garante que tokens e créditos sejam inicializados corretamente
+  return await prisma.user.create({
+    data: {
+      ...data,
+      tokens: 1,
+      resumeRewriteCredits: 0,
+    },
+  });
 }
 
 export async function getUserByEmail(email: string): Promise<User | null> {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { updateUserSubscription } from "@/services/subscriptionService";
+import { updateUserSubscription, upgradeToPro } from "@/services/subscriptionService";
 import { SubscriptionType } from "@prisma/client";
 import jwt from "jsonwebtoken";
 
@@ -31,7 +31,11 @@ export async function POST(req: NextRequest) {
     if (!Object.values(SubscriptionType).includes(subscriptionType)) {
       return NextResponse.json({ error: "Invalid subscription type" }, { status: 400 });
     }
-    await updateUserSubscription(userId, subscriptionType);
+    if (subscriptionType === "PRO") {
+      await upgradeToPro(userId);
+    } else {
+      await updateUserSubscription(userId, subscriptionType);
+    }
     return NextResponse.json({ success: true, subscriptionType });
   } catch (error) {
     return NextResponse.json({ error: "Erro interno" }, { status: 500 });
