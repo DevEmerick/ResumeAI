@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import Dashboard from "@/app/dashboard/page";
 import * as AuthContext from "@/contexts/AuthContext";
+import { I18nProvider } from "@/contexts/I18nContext";
 
 // Mock do contexto de autenticação
 jest.spyOn(AuthContext, "useAuth").mockReturnValue({
@@ -34,7 +35,11 @@ global.fetch = jest.fn(() =>
 
 describe("Dashboard integration", () => {
   it("exibe estatísticas e análises reais", async () => {
-    render(<Dashboard />);
+    render(
+      <I18nProvider>
+        <Dashboard />
+      </I18nProvider>
+    );
     await waitFor(() => {
       expect(screen.getByText("2")).toBeInTheDocument(); // resumesAnalyzed
       expect(screen.getByText("85")).toBeInTheDocument(); // averageScore
@@ -51,7 +56,11 @@ describe("Dashboard integration", () => {
     (global.fetch as jest.Mock).mockImplementationOnce(() =>
       Promise.resolve({ json: () => Promise.resolve([]) })
     );
-    render(<Dashboard />);
+    render(
+      <I18nProvider>
+        <Dashboard />
+      </I18nProvider>
+    );
     await waitFor(() => {
       expect(screen.getByText("No analyses found.")).toBeInTheDocument();
     });

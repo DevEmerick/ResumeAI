@@ -50,13 +50,14 @@ Para dúvidas técnicas, consulte este arquivo, o README.md e o schema.prisma. P
 ## 1. Project Overview
 ResumeAI is a SaaS platform for AI-powered resume analysis and rewriting. It is designed for extensibility, security, and developer productivity, using a modern, modular stack.
 
-> **Important:** This project requires Prisma version 6.x. Other versions are not supported.
+
+> **Importante:** Este projeto agora utiliza **Prisma 7**. Certifique-se de rodar `npm install prisma@latest @prisma/client@latest @prisma/adapter-pg@latest` e siga as instruções do README para onboarding universal.
 
 ## 2. Tech Stack & Tooling
 - **Frontend:** Next.js 16 (App Router), React 19, TypeScript 5, TailwindCSS 3
 - **Backend:** Next.js API routes (Node.js), TypeScript
-- **Database:** PostgreSQL (managed via Prisma ORM v6)
-- **ORM:** Prisma v6 (strictly required)
+- **Database:** PostgreSQL (gerenciado via Prisma ORM v7)
+- **ORM:** Prisma v7 (obrigatório)
 - **AI Integration:** OpenAI API (cloud) e Ollama (local LLM, compatível com OpenAI SDK)
 - **Authentication:** JWT (stateless, custom logic)
 - **Testing:** Jest (unit/integration), Playwright (e2e)
@@ -76,8 +77,9 @@ root/
     types/           # Global TypeScript types
     pages/           # (Legacy) Next.js pages API (alguns endpoints)
   prisma/
-    schema.prisma    # Database schema (User, Resume, AnalysisHistory, enums)
+    schema.prisma    # Database schema (User, Resume, AnalysisHistory, enums) — sem campo url
     migrations/      # DB migrations (auto versioned)
+    prisma.config.ts # Configuração do datasource (Prisma 7)
   scripts/           # Utility scripts (addTestUser, populateAnalysisHistory, etc.)
   tests/             # Jest/Playwright tests (api, components, e2e)
   docs/              # Documentation (architecture, todos)
@@ -89,7 +91,8 @@ root/
   tsconfig.json      # TypeScript config
 ```
 
-## 5. Database Schema (Prisma v6)
+
+## 5. Database Schema (Prisma v7)
 ### Models
 - **User:** id, email, passwordHash, createdAt, updatedAt, name, subscriptionType (FREE/PRO/TEAM), tokens, resumeRewriteCredits, lastTokenRefill
 - **Resume:** id, fileName, content, analysis, createdAt, userId
@@ -167,4 +170,4 @@ docs/                 # Documentation (architecture, todos)
 - Regular automated tests
 
 ---
-For more details, see README.md and the Prisma schema.
+Para mais detalhes, veja o README.md e o schema Prisma.

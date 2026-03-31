@@ -1,3 +1,5 @@
+// Carrega variáveis do .env.test antes de tudo
+require('dotenv').config({ path: '.env.test' });
 global.TextDecoder = require('util').TextDecoder;
 global.TextEncoder = require('util').TextEncoder;
 global.ReadableStream = require('web-streams-polyfill').ReadableStream;
