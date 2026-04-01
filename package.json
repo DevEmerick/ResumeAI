@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npm run db:sync && concurrently -k -c \"cyan,magenta\" -n \"NEXT,PRISMA\" \"next dev\" \"npx prisma studio\"",
+    "dev": "npm run db:sync && next dev",
+    "studio": "npx prisma studio",
     "build": "npx prisma generate && next build",
     "start": "next start",
     "test": "jest",
