@@ -135,12 +135,10 @@ export default function AnalysisResultCard({ analysis, loading }: AnalysisResult
         <div className="text-slate-300 whitespace-pre-line text-base bg-slate-900/50 p-6 rounded-xl border border-slate-700">{displayData}</div>
       ) : displayData ? (
         <>
-          {/* Score */}
           <div className="mb-8 flex flex-col items-center">
             <span className="text-slate-400 text-sm font-medium mb-2 uppercase tracking-wider">{t("result.overallScore", "Overall Score")}</span>
             <div className="text-7xl font-extrabold text-blue-500 drop-shadow-sm" aria-live="polite">{displayData.score ?? '--'}<span className="text-3xl text-slate-600">/100</span></div>
           </div>
-          {/* Strengths */}
           <div className="mb-6">
             <div className="flex items-center mb-2">
               <CheckCircleIcon className="w-6 h-6 text-green-400 mr-2" />
@@ -152,7 +150,6 @@ export default function AnalysisResultCard({ analysis, loading }: AnalysisResult
               )) : loading || showBar ? <li><SkeletonLoader /></li> : <li className="text-slate-500 italic">{t("result.noStrengths", "No strengths found")}</li>}
             </ul>
           </div>
-          {/* Weaknesses */}
           <div className="mb-6">
             <div className="flex items-center mb-2">
               <ExclamationTriangleIcon className="w-6 h-6 text-red-400 mr-2" />
@@ -164,7 +161,6 @@ export default function AnalysisResultCard({ analysis, loading }: AnalysisResult
               )) : loading || showBar ? <li><SkeletonLoader /></li> : <li className="text-slate-500 italic">{t("result.noWeaknesses", "No weaknesses found")}</li>}
             </ul>
           </div>
-          {/* Suggestions */}
           <div>
             <div className="flex items-center mb-2">
               <LightBulbIcon className="w-6 h-6 text-blue-400 mr-2" />

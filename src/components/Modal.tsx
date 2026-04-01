@@ -26,7 +26,6 @@ const Modal: React.FC<ModalProps> = ({ open, onClose, children }) => {
       aria-modal="true"
       tabIndex={-1}
     >
-      {/* Overlay */}
       <div
         className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
         onClick={onClose}
@@ -34,9 +33,7 @@ const Modal: React.FC<ModalProps> = ({ open, onClose, children }) => {
         tabIndex={-1}
       />
       
-      {/* Modal content */}
       <div className="relative z-10 w-full max-w-2xl max-h-[90vh] bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl flex flex-col animate-fadeIn overflow-hidden">
-        {/* Close Button (UX/A11Y) */}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 z-20"
@@ -47,7 +44,6 @@ const Modal: React.FC<ModalProps> = ({ open, onClose, children }) => {
           </svg>
         </button>
 
-        {/* Área de conteúdo rolável */}
         <div className="overflow-y-auto p-6 sm:p-8 custom-scrollbar">
           {children}
         </div>

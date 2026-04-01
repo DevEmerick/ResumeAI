@@ -9,7 +9,6 @@ export default function Home() {
     <>
       <Navbar />
       <section className="relative flex flex-col items-center justify-center flex-1 w-full text-center px-6 py-24 gap-6 overflow-hidden">
-        {/* Efeito de brilho de fundo (Glow) */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-600/20 rounded-full blur-[120px] -z-10 pointer-events-none"></div>
         
         <h1 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight drop-shadow-sm">

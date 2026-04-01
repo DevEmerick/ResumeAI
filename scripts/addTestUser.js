@@ -1,18 +1,35 @@
 require('dotenv').config();
 const { PrismaClient } = require('@prisma/client');
-const { PrismaPg } = require('@prisma/adapter-pg');
 const bcrypt = require('bcryptjs');
 
 async function main() {
-  const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
-  const prisma = new PrismaClient({ adapter });
+  const prisma = new PrismaClient();
   const email = 'testuser@ai.com';
   const password = 'TestPassword123!';
   const passwordHash = await bcrypt.hash(password, 12);
-  const user = await prisma.user.create({
-    data: { email, passwordHash }
-  });
-  console.log('Usuário inserido:', { email, password });
+  
+  try {
+    const user = await prisma.user.create({
+      data: { 
+        email, 
+        passwordHash,
+        name: 'Test User',
+        subscriptionType: 'FREE',
+        tokens: 10,
+        resumeRewriteCredits: 2,
+        lastTokenRefill: new Date()
+      }
+    });
+    console.log('✅ Usuário inserido:', { email, password });
+    console.log('   ID:', user.id);
+  } catch (error) {
+    if (error.code === 'P2002') {
+      console.log('⚠️  Usuário já existe:', email);
+    } else {
+      throw error;
+    }
+  }
+  
   await prisma.$disconnect();
 }
 

@@ -131,7 +131,6 @@ function Dashboard() {
               <h1 className="text-3xl font-semibold text-white">{t("dashboard.title", "Dashboard")}</h1>
               <p className="text-slate-400 text-sm">{t("dashboard.subtitle", "Aqui você acompanha suas análises recentes e estatísticas gerais.")}</p>
             </div>
-            {/* Card do histórico com botão no topo direito */}
             <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-xl transition-colors duration-300 text-slate-200 mb-2 relative flex flex-col gap-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <h3 className="text-2xl font-semibold text-white">{t("history.title", "Últimas análises")}</h3>

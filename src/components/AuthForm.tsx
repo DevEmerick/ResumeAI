@@ -168,7 +168,6 @@ export default function AuthForm({ type }: AuthFormProps) {
           type === "login" ? "Entrar" : "Registrar"
         )}
       </button>
-      {/* Animação de transição suave ao redirecionar */}
       {redirecting && (
         <div className="fixed inset-0 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm z-50 transition-opacity animate-fadeOut">
           <div className="bg-slate-800/90 rounded-2xl p-8 flex flex-col items-center gap-4 shadow-2xl border border-slate-700">

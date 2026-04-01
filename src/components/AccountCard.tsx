@@ -96,7 +96,6 @@ export default function AccountCard() {
       <div className="w-28 h-28 rounded-full bg-blue-600 flex items-center justify-center text-white text-5xl font-bold border-4 border-white shadow-lg">
         {displayName.charAt(0).toUpperCase()}
       </div>
-      {/* Botão de editar perfil permanece, mas sem referência a foto */}
       <button
         className="absolute bottom-0 right-0 bg-red-500 hover:bg-red-400 text-white rounded-full p-2 shadow-lg border-2 border-white focus:outline-none focus:ring-2 focus:ring-blue-500"
         aria-label="Editar perfil"
@@ -163,9 +162,7 @@ export default function AccountCard() {
       </div>
 
 
-      {/* Saldo de tokens e créditos de reescrita */}
       <div className="flex justify-center mt-4 gap-4">
-        {/* Tokens */}
         <div className="flex flex-col items-center px-2 py-1 rounded bg-slate-800/80 border border-yellow-500 shadow-sm min-w-[80px]" title="Tokens disponíveis">
           <div className="flex items-center gap-1">
             <span className="text-base font-bold text-yellow-200">{user?.tokens ?? 0}</span>
@@ -173,7 +170,6 @@ export default function AccountCard() {
           </div>
           <span className="text-[10px] text-yellow-100 mt-0.5">Tokens disponíveis</span>
         </div>
-        {/* Créditos de reescrita */}
         <div className="flex flex-col items-center px-2 py-1 rounded bg-slate-800/80 border border-blue-500 shadow-sm min-w-[80px]" title="Créditos de reescrita">
           <div className="flex items-center gap-1">
             <span className="text-base font-bold text-blue-200">{user?.resumeRewriteCredits ?? 0}</span>
@@ -183,7 +179,6 @@ export default function AccountCard() {
         </div>
       </div>
 
-      {/* Comprar mais tokens (simulação) */}
       <div className="mt-4">
         <span className="block text-slate-400 text-xs mb-1">Comprar mais tokens:</span>
         <div className="flex flex-col items-center gap-2 mt-2">

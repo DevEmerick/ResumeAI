@@ -99,12 +99,10 @@ const AnalysisCard: React.FC<AnalysisCardProps> = ({ score, strengths, weaknesse
       </div>
       {translationError && <div className="text-red-400 text-xs text-right mb-2" role="alert">{translationError}</div>}
 
-      {/* Resume Score */}
       <div className="mb-8 text-center">
         <h2 className="text-2xl font-semibold text-white mb-2">{t("result.title", "Analysis Result")}</h2>
         <div className="text-6xl font-extrabold text-blue-500 drop-shadow-sm" aria-live="polite">{score}<span className="text-3xl text-slate-500">/100</span></div>
       </div>
-      {/* Strengths */}
       <div className="mb-6">
         <h3 className="text-lg font-semibold text-green-400 mb-3 flex items-center gap-2">{t("result.strengths", "Strengths")}</h3>
         <ul className="space-y-2 text-slate-300">
@@ -113,7 +111,6 @@ const AnalysisCard: React.FC<AnalysisCardProps> = ({ score, strengths, weaknesse
           )) : <li className="text-slate-500 italic">{t("result.noStrengths", "No strengths found")}</li>}
         </ul>
       </div>
-      {/* Weaknesses */}
       <div className="mb-6">
         <h3 className="text-lg font-semibold text-red-400 mb-3 flex items-center gap-2">{t("result.weaknesses", "Weaknesses")}</h3>
         <ul className="space-y-2 text-slate-300">
@@ -122,7 +119,6 @@ const AnalysisCard: React.FC<AnalysisCardProps> = ({ score, strengths, weaknesse
           )) : <li className="text-slate-500 italic">{t("result.noWeaknesses", "No weaknesses found")}</li>}
         </ul>
       </div>
-      {/* Suggestions */}
       <div>
         <h3 className="text-lg font-semibold text-blue-400 mb-3 flex items-center gap-2">{t("result.suggestions", "Suggestions for Improvement")}</h3>
         {isPremium ? (

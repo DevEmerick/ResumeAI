@@ -30,7 +30,6 @@ export default function ProgressBar({ progress, indeterminate, finished }: Progr
           aria-valuemax={100}
           role="progressbar"
         />
-        {/* Animação de check ao finalizar */}
         {finished && (
           <span className="absolute right-2 top-1/2 -translate-y-1/2 text-green-300 animate-fade-in">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>

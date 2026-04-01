@@ -6,7 +6,7 @@ describe('Automated User Registration', () => {
     const email = `testuser_${Date.now()}@example.com`;
     const password = 'TestPassword123!';
     const passwordHash = await bcrypt.hash(password, 12);
-    const user = await createUser({ email, passwordHash });
+    const user = await createUser({ name: 'Test User', email, passwordHash });
     console.log('Usuário criado:', { email, password });
     expect(user.email).toBe(email);
   });

@@ -25,7 +25,6 @@ const PricingCard: React.FC<PricingCardProps> = ({ name, price, features, highli
       aria-label={name}
     >
       <h3 className={`text-3xl font-semibold mb-2 ${highlight ? "text-blue-400" : "text-white"}`}>{name}</h3>
-      {/* Preço Pro v2: valor em cima, 'mês' embaixo, sem barra, só para highlight */}
       {highlight ? (
         <div className="flex flex-col items-center mb-4">
           <span className="text-4xl font-extrabold text-white">{price}</span>

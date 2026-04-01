@@ -109,7 +109,6 @@ export default function AnalysisHistorySection({ history, setHistory, hideTitle 
               // 'parsed' já está em item.parsed devido ao processamento anterior
               return (
                 <div key={item.id} className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-slate-700 rounded-xl p-5 bg-slate-800/50 hover:bg-slate-800 transition-all duration-300 shadow-sm hover:shadow-md hover:scale-[1.015] hover:border-blue-500 group">
-                  {/* Corpo clicável do card */}
                   <div
                   className="flex-1 w-full cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-lg pr-8 sm:pr-0"
                   onClick={() => {

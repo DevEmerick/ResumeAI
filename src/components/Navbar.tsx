@@ -141,13 +141,12 @@ export default function Navbar() {
         {/* Menu mobile */}
         {mobileOpen && (
           <div className="fixed inset-0 z-50 flex flex-col md:hidden transition-colors duration-300 min-h-screen justify-center items-center" role="dialog" aria-modal="true">
-            {/* Fundo escurecido e blur */}
             <div
               className="absolute inset-0 bg-slate-900/95 backdrop-blur-sm supports-[backdrop-filter]:bg-slate-900/90 transition-opacity cursor-pointer"
               aria-hidden="true"
               onClick={() => setMobileOpen(false)}
             ></div>
-            {/* Card do menu modal centralizado, com rolagem interna e botão de fechar fixo */}
+
             <div
               className="relative z-10 flex flex-col w-[90vw] max-w-xs sm:max-w-sm bg-slate-800/95 rounded-2xl shadow-2xl border border-slate-700 animate-fade-in max-h-[90vh] overflow-y-auto"
               onClick={e => e.stopPropagation()}
