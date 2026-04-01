@@ -4,47 +4,113 @@
 
 ---
 
-## 🚀 Quickstart (5 minutos)
+## 🚀 Quickstart (Funciona em Mac e Windows)
 
-### 1. Pré-requisitos
-- **Node.js 18+** e npm
-- **PostgreSQL** rodando localmente
+### ✨ Opção 1: Local (Mac + Windows) - Recomendado para Dev
 
-### 2. Clone e instale dependências
+**Pré-requisitos:**
+- Node.js 18+
+- Ollama instalado ([Download](https://ollama.ai))
+
+**Rode em 3 comandos:**
 ```bash
 git clone <url-do-repo>
 cd resume-analyser
+npm install && npm run dev
+```
+
+**Pronto!** Acesse [http://localhost:3000](http://localhost:3000)
+
+O que rodará automaticamente:
+- ✅ SQLite local (ZERO configuração)
+- ✅ Prisma Client
+- ✅ Migrações automáticas
+- ✅ Next.js Dev Server
+- ✅ Prisma Studio em http://localhost:5555
+- 🤖 Ollama (precisa estar rodando localmente)
+
+**Para que o Ollama funcione:**
+
+Antes de `npm run dev`, abra um novo terminal e rode:
+```bash
+ollama serve
+```
+
+Depois, em outro terminal:
+```bash
+ollama pull llama2
+```
+
+---
+
+### 🐳 Opção 2: Docker Compose (Tudo Containerizado)
+
+**Pré-requisitos:**
+- [Docker Desktop](https://www.docker.com/products/docker-desktop) instalado
+
+**Rode em 2 comandos:**
+```bash
+git clone <url-do-repo>
+cd resume-analyser
+docker-compose up
+```
+
+**Pronto!** Acesse [http://localhost:3000](http://localhost:3000)
+
+O que rodará automaticamente (em containers):
+- ✅ PostgreSQL
+- ✅ Ollama + Modelo llama2
+- ✅ Prisma Client
+- ✅ Migrações automáticas
+- ✅ Next.js Dev Server
+- ✅ Prisma Studio em http://localhost:5555
+
+**Dados do Docker:**
+```
+Database: resumeai
+User: resumeai
+Password: resumeai_dev_password
+Ollama: http://localhost:11434
+```
+
+---
+
+## 📖 Troubleshooting
+
+### ❌ "Cannot find Ollama" (Setup Local)
+- Instale: https://ollama.ai
+- Execute em um terminal separado: `ollama serve`
+- Depois puxe o modelo: `ollama pull llama2`
+- Após isso, rode `npm run dev` em outro terminal
+
+### ❌ "Cannot find module" / Erro de dependência
+```bash
+rm -rf node_modules package-lock.json
 npm install
-```
-
-### 3. Configure o banco de dados
-```bash
-# Crie o banco local
-psql -h localhost -U $(whoami) -c "CREATE DATABASE resumeai;"
-
-# Configure variáveis de ambiente
-cp .env.example .env.local
-```
-
-Edite `.env.local` e ajuste:
-```bash
-DATABASE_URL="postgresql://<seu_usuario>@localhost:5432/resumeai"
-JWT_SECRET="sua_chave_secreta_aqui"
-```
-
-### 4. Rode o projeto
-```bash
 npm run dev
 ```
 
-Pronto! O servidor inicia em [http://localhost:3000](http://localhost:3000)
+### ❌ Prisma Studio não abre
+```bash
+# Tente acessar manualmente
+http://localhost:5555
+```
 
-**Nota:** `npm run dev` automaticamente:
-- ✅ Gera Prisma Client
-- ✅ Sincroniza banco de dados
-- ✅ Inicia Next.js Dev Server
-- ✅ Abre Prisma Studio (gerenciador visual do banco)
-- ✅ Inicia Ollama (LLM local para IA)
+### ❌ "Docker command not found"
+- Instale [Docker Desktop](https://www.docker.com/products/docker-desktop)
+- Reinicie o terminal após instalar
+
+### ❌ Database errors no Docker
+```bash
+# Reset completo do Docker
+docker-compose down -v
+docker-compose up
+```
+```
+
+### ❌ Ollama não inicia (Setup Local)
+- Edite `package.json` script `dev` e remova `"ollama serve"`
+- Ou instale Ollama: https://ollama.ai
 
 ---
 
@@ -55,6 +121,7 @@ Pronto! O servidor inicia em [http://localhost:3000](http://localhost:3000)
 - **IA:** OpenAI API ou Ollama (local)
 - **PDF:** pdf-parse, Tesseract.js, Mammoth
 - **Testes:** Jest (unit/integration), Playwright (E2E)
+- **DevOps:** Docker, Docker Compose
 
 ---
 
@@ -138,27 +205,59 @@ npm start
 
 ---
 
-## 🔬 Testes Automatizados
-O projeto tem 90%+ de cobertura com Jest.
+---
 
-```bash
-npm test
-```
+## 💡 Dicas Importantes para Desenvolvimento
 
-- ✅ Autenticação (login, registro)
-- ✅ Upload e análise de PDF
-- ✅ Sistema de tokens (FREE/PRO/TEAM)
-- ✅ CRUD de curriculum e histórico
-- ✅ Integração com AI (OpenAI/Ollama)
+### Prisma 7 - Configuração Especial
+- ⚠️ **NÃO adicione `url` ao schema.prisma** — A URL é lida de `prisma.config.ts`
+- ✅ Use `DATABASE_URL` do `.env.local` ou `.env.test`
+
+### Desenvolvimento Local
+- Use `.env.local` para configs locais (setup manual)
+- Use `.env.test` para testes (banco separado)
+- Prisma Studio: http://localhost:5555 (abre automaticamente)
+- Logs: Verifique o terminal para erros de sincronização
+
+### Docker Development
+- Dados persistem em volume `postgres_data`
+- Para resetar: `docker-compose down -v`
+- Para logs: `docker-compose logs -f`
+
+### Produção
+- Ensure DATABASE_URL está definida
+- Execute `npm run build` antes de deploy
+- Configure variáveis de ambiente no seu servidor
+- Considere usar um serviço gerenciado (Railway, Render, Vercel)
 
 ---
 
-## 🚀 Fluxo Principal da Aplicação
-1. **Usuário faz login** → JWT token gerado
-2. **Faz upload de PDF** → Texto extraído com pdf-parse/Tesseract
-3. **Sistema analisa** → OpenAI/Ollama gera feedback
-4. **Resultado exibido** → Sugestões de melhoria
-5. **Histórico salvo** → AnalysisHistory no banco
+## 🛠️ Scripts Úteis
+```bash
+# Desenvolvimento
+npm run dev                 # Inicia Dev Server (com Prisma Studio)
+npm run build              # Build para produção
+npm start                  # Roda produção (requer npm run build)
+
+# Testes
+npm test                   # Unitários + Integração (Jest)
+npm run test:e2e           # End-to-End (Playwright)
+npm run test:with-server   # Testes com servidor rodando
+
+# Database
+npm run db:sync            # Gera Prisma Client + migra banco
+npx prisma studio         # Abre GUI do banco (porta 5555)
+
+# Scripts
+npx ts-node scripts/addTestUser.ts
+npx ts-node scripts/populateAnalysisHistory.ts
+npx ts-node scripts/checkLastUserTokens.ts
+
+# Docker
+docker-compose up          # Roda tudo em containers
+docker-compose down        # Para containers
+docker-compose logs -f     # Visualiza logs em real-time
+```
 
 ---
 
@@ -166,53 +265,16 @@ npm test
 - [docs/architecture.md](docs/architecture.md) — Arquitetura detalhada
 - [docs/todo.md](docs/todo.md) — Roadmap do projeto
 - [prisma/schema.prisma](prisma/schema.prisma) — Schema completo
-- [package.json](package.json) — Dependências e scripts
+- [docker-compose.yml](docker-compose.yml) — Config Docker
+- [Dockerfile](Dockerfile) — Build image
 
 ---
 
-## 💡 Dicas Importantes
-
-### Prisma 7 - Configuração Especial
-- ⚠️ **NÃO adicione `url` ao schema.prisma** — A URL é lida de `prisma.config.ts`
-- ✅ Use `@env("DATABASE_URL")` quando necessário no schema
-
-### Desenvolvimento
-- Use `.env.local` para configs locais
-- Use `.env.test` para testes (banco separado)
-- Prisma Studio (aberto automaticamente em `npm run dev`): http://localhost:5555
-
-### Produção
-- Ensure DATABASE_URL está definida
-- Execute `npm run build` antes de fazer deploy
-- Configure variáveis de ambiente no seu servidor
-
----
-
-## 🤝 Troubleshooting
-
-**Erro: "Cannot find module './Function.js"**
-```bash
-rm -rf node_modules package-lock.json
-npm install
-npm run dev
-```
-
-**Erro: "Database resumeai does not exist"**
-```bash
-psql -h localhost -U $(whoami) -c "CREATE DATABASE resumeai;"
-npx prisma db push
-```
-
-**Ollama não inicia**
-- Se não tem Ollama instalado, edite `package.json` e remova `ollama serve` do script `dev`
-- Ou instale: `brew install ollama` (Mac)
-
----
-
-## 📞 Suporte
+## 🤝 Suporte
 - Leia [docs/architecture.md](docs/architecture.md) para detalhes técnicos
 - Veja [prisma/schema.prisma](prisma/schema.prisma) para estrutura do banco
-- Execute `npm run dev` e use Prisma Studio em http://localhost:5555
+- Use Prisma Studio: http://localhost:5555 (quando rodando)
+- Verifique este README frequentemente para atualizações
 
 ---
 

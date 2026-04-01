@@ -7,6 +7,6 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: (process.env["DATABASE_URL"] ?? (() => { throw new Error("DATABASE_URL não definida"); })()) as string,
+    url: process.env["DATABASE_URL"] || "file:./prisma/dev.db",
   },
 });

@@ -1,18 +1,93 @@
 version: '3.8'
 
 services:
-  db:
+  # PostgreSQL Database
+  postgres:
     image: postgres:16-alpine
-    container_name: resume-analyser-db
-    restart: always
+    container_name: resumeai-db
+    restart: unless-stopped
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: resumeai
+      POSTGRES_PASSWORD: resumeai_dev_password
       POSTGRES_DB: resumeai
+      TZ: UTC
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U resumeai"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - resumeai-network
+
+  # Ollama - Local LLM for AI Resume Analysis
+  ollama:
+    image: ollama/ollama:latest
+    container_name: resumeai-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
+    networks:
+      - resumeai-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Next.js Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: resumeai-app
+    restart: unless-stopped
+    environment:
+      DATABASE_PROVIDER: "postgresql"
+      DATABASE_URL: "postgresql://resumeai:resumeai_dev_password@postgres:5432/resumeai"
+      JWT_SECRET: "dev_secret_key_change_in_production"
+      NODE_ENV: development
+      NEXT_PUBLIC_API_URL: "http://localhost:3000"
+      OLLAMA_BASE_URL: "http://ollama:11434"
+    ports:
+      - "3000:3000"
+      - "5555:5555"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - resumeai-network
+    command: >
+      sh -c "
+      echo '📦 Instalando dependências...' &&
+      npm install &&
+      echo '🔄 Sincronizando banco de dados...' &&
+      npm run db:sync &&
+      echo '🤖 Puxando modelo Ollama...' &&
+      curl -X POST http://ollama:11434/api/pull -d '{\"name\":\"llama2\"}' || echo 'Modelo já existe' &&
+      echo '✅ Tudo pronto! Iniciando...' &&
+      npm run dev
+      "
 
 volumes:
-  pgdata:
+  postgres_data:
+    driver: local
+  ollama_data:
+    driver: local
+
+networks:
+  resumeai-network:
+    driver: bridge

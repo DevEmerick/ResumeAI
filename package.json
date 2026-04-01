@@ -3,14 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npm run db:sync && concurrently -k -c \"cyan,magenta,yellow\" -n \"NEXT,PRISMA,OLLAMA\" \"next dev\" \"npx prisma studio\" \"ollama serve\"",
+    "dev": "npm run db:sync && concurrently -k -c \"cyan,magenta\" -n \"NEXT,PRISMA\" \"next dev\" \"npx prisma studio\"",
     "build": "npx prisma generate && next build",
     "start": "next start",
     "test": "jest",
     "test:e2e": "playwright test",
     "test:with-server": "concurrently -k -s first \"next dev\" \"sleep 5 && jest\"",
-    "db:sync": "npx prisma generate && npx prisma db push",
-    "ollama:pull": "ollama pull llama3"
+    "db:sync": "bash scripts/setupPrisma.sh && npx prisma generate && npx prisma db push"
   },
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "^7.2.0",

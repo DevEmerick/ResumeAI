@@ -2,8 +2,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// Provider para SQLite (dev local, sem adapter)
+// Em produção/Docker, DATABASE_URL com postgresql:// usa @prisma/adapter-pg
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
 }
 
 model AnalysisHistory {
