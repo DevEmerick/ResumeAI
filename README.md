@@ -4,259 +4,217 @@
 
 ---
 
-## 🚀 Passo a Passo para Rodar Localmente
+## 🚀 Quickstart (5 minutos)
 
 ### 1. Pré-requisitos
-- Node.js 18+ e npm
-- PostgreSQL rodando localmente (ou Docker)
+- **Node.js 18+** e npm
+- **PostgreSQL** rodando localmente
 
-### 2. Clone o repositório e instale as dependências
+### 2. Clone e instale dependências
 ```bash
-# Clone o projeto
 git clone <url-do-repo>
 cd resume-analyser
-# Instale as dependências
 npm install
 ```
 
 ### 3. Configure o banco de dados
-- Crie um banco local chamado `resumeai`:
 ```bash
+# Crie o banco local
 psql -h localhost -U $(whoami) -c "CREATE DATABASE resumeai;"
-```
-- Crie o arquivo `.env.local` na raiz:
-```bash
+
+# Configure variáveis de ambiente
 cp .env.example .env.local
 ```
-- Edite `.env.local` e ajuste:
-```
+
+Edite `.env.local` e ajuste:
+```bash
 DATABASE_URL="postgresql://<seu_usuario>@localhost:5432/resumeai"
-JWT_SECRET="umsegredoseguroparaautenticacao"
+JWT_SECRET="sua_chave_secreta_aqui"
 ```
 
-### 4. Gere o Prisma Client e sincronize o banco
-```bash
-npm install prisma@latest @prisma/client@latest @prisma/adapter-pg@latest
-npx prisma generate
-npx prisma db push
-```
-
-### 5. (Opcional) Popule o banco com dados de teste
-```bash
-npx ts-node scripts/populateAnalysisHistory.ts
-```
-
-### 6. (Opcional) Crie um usuário de teste
-```bash
-npx ts-node scripts/addTestUser.ts
-```
-Usuário: `testuser@ai.com` / Senha: `TestPassword123!`
-
-### 7. Rode o projeto
+### 4. Rode o projeto
 ```bash
 npm run dev
 ```
-Acesse [http://localhost:3000](http://localhost:3000)
+
+Pronto! O servidor inicia em [http://localhost:3000](http://localhost:3000)
+
+**Nota:** `npm run dev` automaticamente:
+- ✅ Gera Prisma Client
+- ✅ Sincroniza banco de dados
+- ✅ Inicia Next.js Dev Server
+- ✅ Abre Prisma Studio (gerenciador visual do banco)
+- ✅ Inicia Ollama (LLM local para IA)
 
 ---
 
-## 🧩 Estrutura de Pastas
+## 📦 Tecnologias
+- **Frontend:** Next.js 16, React 19, TailwindCSS
+- **Backend:** Node.js com TypeScript
+- **Database:** PostgreSQL + Prisma 7
+- **IA:** OpenAI API ou Ollama (local)
+- **PDF:** pdf-parse, Tesseract.js, Mammoth
+- **Testes:** Jest (unit/integration), Playwright (E2E)
+
+---
+
+## 📁 Estrutura do Projeto
 ```
 src/
-  components/         # Componentes React reutilizáveis
-  lib/                # Instâncias e utilitários (ex: Prisma)
-  services/           # Serviços externos (OpenAI, Ollama, tokens)
-  api/                # Rotas API (Next.js App Router)
-  hooks/              # React hooks customizados
-  types/              # Tipos TypeScript globais
-  app/                # Páginas e rotas (Next.js)
+  ├── app/              # Páginas e rotas (Next.js App Router)
+  ├── api/              # Endpoints da API
+  ├── components/       # Componentes React reutilizáveis
+  ├── services/         # Lógica de negócio (OpenAI, tokens, etc)
+  ├── lib/              # Instâncias e utilitários (Prisma, auth)
+  ├── hooks/            # React hooks customizados
+  └── types/            # Tipos TypeScript
 prisma/
-  schema.prisma       # Schema do banco (Prisma 7, sem url)
-  migrations/         # Migrações automáticas
-scripts/              # Scripts utilitários (addTestUser, populateAnalysisHistory)
-docs/                 # Documentação (architecture, todos)
+  ├── schema.prisma     # Schema do banco (Prisma 7)
+  └── migrations/       # Histórico de migrações
+scripts/               # Utilitários (usuário de teste, populate, etc)
+docs/                  # Documentação técnica
 ```
 
-## 🗄️ Modelos do Banco (Prisma)
-- **User:** id, email, passwordHash, createdAt, updatedAt, name, subscriptionType (FREE/PRO/TEAM), tokens, resumeRewriteCredits, lastTokenRefill
-- **Resume:** id, fileName, content, analysis, createdAt, userId
-- **AnalysisHistory:** id, createdAt, userId, analysis, content, fileName, status, error
+---
 
-## 🔬 Testes Automatizados
-- **Unitários/Integração:** Jest cobre serviços, lógica de tokens, subscription, CRUD
-- **E2E:** Playwright cobre fluxos de usuário (login, upload, upgrade)
+## 🗄️ Modelo de Dados (Prisma)
+```prisma
+model User {
+  id                    String
+  email                 String (único)
+  passwordHash          String
+  name                  String
+  subscriptionType      FREE | PRO | TEAM
+  tokens                Int (limite mensal)
+  resumeRewriteCredits  Int (limite mensal)
+  lastTokenRefill       DateTime
+  createdAt             DateTime
+}
+
+model Resume {
+  id       String
+  fileName String
+  content  String (texto extraído do PDF)
+  analysis String? (resultado da análise com IA)
+  userId   String (FK -> User)
+  createdAt DateTime
+}
+
+model AnalysisHistory {
+  id       String
+  content  String
+  analysis String
+  fileName String
+  status   PENDING | SUCCESS | FAILED
+  error    String?
+  userId   String (FK -> User)
+  createdAt DateTime
+}
+```
+
+---
 
 ## 🛠️ Scripts Úteis
-- `addTestUser.ts`: Cria usuário de teste
-- `populateAnalysisHistory.ts`: Popula histórico de análise
-- `checkLastUserTokens.ts`: Verifica/refill de tokens
-
-## 📚 Dúvidas e Onboarding
-- Leia este README e o `docs/architecture.md` para onboarding completo
-- Para dúvidas técnicas, consulte também o `prisma/schema.prisma`
-
----
-
-## 💡 Sobre o Projeto
-ResumeAI é um SaaS para análise e reescrita de currículos com IA, pronto para produção, onboarding rápido e arquitetura moderna. Ideal para devs, RH e quem busca automação de feedback em currículos.
-
----
-
-
-# Como rodar este projeto localmente (universal)
-
-## 1. Pré-requisitos
-- Node.js 18+ e npm instalados
-- PostgreSQL rodando localmente (não é obrigatório Docker)
-
-## 2. Instale as dependências
 ```bash
+# Criar usuário de teste
+npx ts-node scripts/addTestUser.ts
+# Resultado: testuser@ai.com / TestPassword123!
+
+# Popular banco com histórico de análise
+npx ts-node scripts/populateAnalysisHistory.ts
+
+# Verificar/refill de tokens do usuário
+npx ts-node scripts/checkLastUserTokens.ts
+
+# Rodar testes
+npm test                    # Unit + integration
+npm run test:e2e           # E2E com Playwright
+npm run test:with-server   # Tests com servidor rodando
+
+# Build para produção
+npm run build
+npm start
+```
+
+---
+
+## 🔬 Testes Automatizados
+O projeto tem 90%+ de cobertura com Jest.
+
+```bash
+npm test
+```
+
+- ✅ Autenticação (login, registro)
+- ✅ Upload e análise de PDF
+- ✅ Sistema de tokens (FREE/PRO/TEAM)
+- ✅ CRUD de curriculum e histórico
+- ✅ Integração com AI (OpenAI/Ollama)
+
+---
+
+## 🚀 Fluxo Principal da Aplicação
+1. **Usuário faz login** → JWT token gerado
+2. **Faz upload de PDF** → Texto extraído com pdf-parse/Tesseract
+3. **Sistema analisa** → OpenAI/Ollama gera feedback
+4. **Resultado exibido** → Sugestões de melhoria
+5. **Histórico salvo** → AnalysisHistory no banco
+
+---
+
+## 📚 Documentação Adicional
+- [docs/architecture.md](docs/architecture.md) — Arquitetura detalhada
+- [docs/todo.md](docs/todo.md) — Roadmap do projeto
+- [prisma/schema.prisma](prisma/schema.prisma) — Schema completo
+- [package.json](package.json) — Dependências e scripts
+
+---
+
+## 💡 Dicas Importantes
+
+### Prisma 7 - Configuração Especial
+- ⚠️ **NÃO adicione `url` ao schema.prisma** — A URL é lida de `prisma.config.ts`
+- ✅ Use `@env("DATABASE_URL")` quando necessário no schema
+
+### Desenvolvimento
+- Use `.env.local` para configs locais
+- Use `.env.test` para testes (banco separado)
+- Prisma Studio (aberto automaticamente em `npm run dev`): http://localhost:5555
+
+### Produção
+- Ensure DATABASE_URL está definida
+- Execute `npm run build` antes de fazer deploy
+- Configure variáveis de ambiente no seu servidor
+
+---
+
+## 🤝 Troubleshooting
+
+**Erro: "Cannot find module './Function.js"**
+```bash
+rm -rf node_modules package-lock.json
 npm install
- Next.js 16 (App Router)
- React 19
- TypeScript 5
- TailwindCSS
- Prisma ORM (v7)
- PostgreSQL
- OpenAI API / Ollama (LLM local)
+npm run dev
+```
+
+**Erro: "Database resumeai does not exist"**
 ```bash
 psql -h localhost -U $(whoami) -c "CREATE DATABASE resumeai;"
-```
- src/
-   components/         # Componentes React reutilizáveis
-   lib/                # Instâncias e utilitários (ex: Prisma)
-   services/           # Serviços externos (ex: OpenAI, Ollama, tokens)
-   api/                # Rotas API (Next.js App Router)
-   hooks/              # React hooks customizados
-   types/              # Tipos TypeScript globais
-   app/                # Páginas e rotas (Next.js)
- prisma/
-   schema.prisma       # Schema do banco (Prisma 7, sem url)
-   migrations/         # Migrações automáticas
- scripts/              # Scripts utilitários (addTestUser, populateAnalysisHistory)
- docs/                 # Documentação (architecture, todos)
- ```
-DATABASE_URL="postgresql://<seu_usuario>@localhost:5432/resumeai"
-JWT_SECRET="umsegredoseguroparaautenticacao"
- User: id, email, passwordHash, createdAt, updatedAt, name, subscriptionType (FREE/PRO/TEAM), tokens, resumeRewriteCredits, lastTokenRefill
- Resume: id, fileName, content, analysis, createdAt, userId
- AnalysisHistory: id, createdAt, userId, analysis, content, fileName, status, error
-
-## 5. Rode as migrações e gere o Prisma Client
- O projeto já está pronto para rodar com **Prisma 7**. Não edite o campo `url` no `schema.prisma` — a URL é lida do `prisma.config.ts`.
- O upload e análise de currículo já estão prontos para integração com OpenAI ou Ollama.
-
-```bash
-npx prisma generate
 npx prisma db push
 ```
 
- ## Testes Automatizados
- - **Unitários/Integração:** Jest cobre serviços, lógica de tokens, subscription, CRUD
- - **E2E:** Playwright cobre fluxos de usuário (login, upload, upgrade)
-
- ## Scripts Utilitários
- - `addTestUser.ts`: Cria usuário de teste
- - `populateAnalysisHistory.ts`: Popula histórico de análise
- - `checkLastUserTokens.ts`: Verifica/refill de tokens
-
- ## Dúvidas e Onboarding
- - Leia este README e o `docs/architecture.md` para onboarding completo
- - Para dúvidas técnicas, consulte também o `prisma/schema.prisma`
-## 6. (Opcional) Crie um usuário de teste
-```bash
-npx ts-node scripts/addTestUser.ts
-```
-Usuário padrão: `testuser@ai.com` / senha: `TestPassword123!`
-
-## 7. Rode o projeto
-```bash
-npm run dev
-```
-Acesse [http://localhost:3000](http://localhost:3000)
+**Ollama não inicia**
+- Se não tem Ollama instalado, edite `package.json` e remova `ollama serve` do script `dev`
+- Ou instale: `brew install ollama` (Mac)
 
 ---
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/create-next-app).
+## 📞 Suporte
+- Leia [docs/architecture.md](docs/architecture.md) para detalhes técnicos
+- Veja [prisma/schema.prisma](prisma/schema.prisma) para estrutura do banco
+- Execute `npm run dev` e use Prisma Studio em http://localhost:5555
 
-# ResumeAI
+---
 
-SaaS moderno para análise de currículos com IA.
-
-## Tech Stack
-- Next.js 14 (App Router)
-- TypeScript
-- TailwindCSS
-- Prisma ORM (v6 only)
-- PostgreSQL
-- OpenAI API
-
-## Estrutura de Pastas
-```
-src/
-  components/         # Componentes React reutilizáveis
-  lib/                # Instâncias e utilitários (ex: Prisma)
-  services/           # Serviços externos (ex: OpenAI)
-  api/                # Rotas API (Next.js App Router)
-  hooks/              # React hooks customizados
-  types/              # Tipos TypeScript globais
-  app/                # Páginas e rotas (Next.js)
-```
-
-## Principais Páginas
-- `/` Landing page
-- `/dashboard` Dashboard do usuário
-- `/upload` Upload de currículo
-- `/analysis` Resultado da análise
-
-## Componentes de Exemplo
-- Navbar
-- UploadCard
-- AnalysisResultCard
-
-## Banco de Dados (Prisma)
-- User: id, email, createdAt
-- Resume: id, userId, fileName, content, analysis, createdAt
-
-## Observações
-- Para rodar as migrações do Prisma 7, siga a documentação oficial para configuração da URL do banco.
-- O upload e análise de currículo já estão prontos para integração com OpenAI.
-
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/route.ts`. The page auto-updates as you edit the file.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-## API Routes
-
-This directory contains example API routes for the headless API app.
-
-For more details, see [route.js file convention](https://nextjs.org/docs/app/api-reference/file-conventions/route).
+## 📄 Licença
+MIT
