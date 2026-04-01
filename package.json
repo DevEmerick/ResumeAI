@@ -9,7 +9,7 @@
     "test": "jest",
     "test:e2e": "playwright test",
     "test:with-server": "concurrently -k -s first \"next dev\" \"sleep 5 && jest\"",
-    "db:sync": "bash scripts/setupPrisma.sh && npx prisma generate && npx prisma db push"
+    "db:sync": "node scripts/setupPrisma.js && npx prisma generate && npx prisma db push"
   },
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "^7.2.0",
