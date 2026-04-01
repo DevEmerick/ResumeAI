@@ -10,7 +10,21 @@
 
 **Pré-requisitos:**
 - Node.js 18+
-- Ollama instalado ([Download](https://ollama.ai))
+- Ollama instalado
+
+**Instalar Ollama (escolha seu SO):**
+
+**Mac:**
+```bash
+brew install ollama
+```
+
+**Windows (PowerShell como Admin):**
+```powershell
+winget install ollama.ollama
+```
+
+Ou baixe manualmente: https://ollama.ai
 
 **Rode em 3 comandos:**
 ```bash
@@ -77,11 +91,37 @@ Ollama: http://localhost:11434
 
 ## 📖 Troubleshooting
 
+### 🤖 Configurando Ollama
+
+**Instalar Ollama (se ainda não tiver):**
+
+Mac:
+```bash
+brew install ollama
+```
+
+Windows (PowerShell Admin):
+```powershell
+winget install ollama.ollama
+```
+
+**Depois de instalar, puxar o modelo:**
+```bash
+ollama pull llama2
+```
+
+**Verificar se Ollama está rodando:**
+```bash
+curl http://localhost:11434/api/tags
+```
+
+---
+
 ### ❌ "Cannot find Ollama" (Setup Local)
-- Instale: https://ollama.ai
+- Instale com um dos comandos acima
 - Execute em um terminal separado: `ollama serve`
-- Depois puxe o modelo: `ollama pull llama2`
-- Após isso, rode `npm run dev` em outro terminal
+- Em outro terminal: `ollama pull llama2`
+- Depois rode `npm run dev` em um terceiro terminal
 
 ### ❌ "Cannot find module" / Erro de dependência
 ```bash
