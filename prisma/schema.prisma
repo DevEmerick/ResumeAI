@@ -6,6 +6,7 @@ generator client {
 // Em produção/Docker, DATABASE_URL com postgresql:// usa @prisma/adapter-pg
 datasource db {
   provider = "sqlite"
+  url      = env("DATABASE_URL")
 }
 
 model AnalysisHistory {
